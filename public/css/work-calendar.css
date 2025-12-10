@@ -1,0 +1,62 @@
+.calendar-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 12px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.calendar-day {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    background: white;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-day.empty {
+    background: #f9f9f9;
+    border-color: #e0e0e0;
+}
+
+.calendar-day .date-number {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.holiday-badge {
+    background: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 3px;
+    display: inline-block;
+    text-transform: uppercase;
+    margin-top: auto;
+}
+
+.btn-set-holiday {
+    margin-top: auto;
+    padding: 6px 10px;
+    font-size: 12px;
+    width: 100%;
+}
