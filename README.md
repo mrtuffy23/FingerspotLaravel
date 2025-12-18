@@ -1,3 +1,4 @@
+
 # Laravel Payroll & Attendance System
 
 A complete Laravel-based payroll and attendance management system with employee management, attendance tracking, leave management, and payroll generation capabilities.
@@ -155,3 +156,6 @@ Total = Base Salary + Allowance
 
 **Version:** 1.0.0
 **Updated:** December 6, 2025
+=======
+# FingerspotLaravel
+
