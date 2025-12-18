@@ -24,8 +24,18 @@
                     'absent' => 'danger',
                     'late' => 'warning',
                     'sick' => 'info',
-                    'leave' => 'secondary',
+                    'on_leave' => 'secondary',
+                    'early_leave' => 'secondary',
                 ][$attendance->status] ?? 'dark';
+
+                $statusLabel = [
+                    'present' => 'HADIR',
+                    'absent' => 'ALPA',
+                    'late' => 'TELAT',
+                    'sick' => 'SAKIT',
+                    'on_leave' => 'CUTI',
+                    'early_leave' => 'PULANG CEPAT',
+                ][$attendance->status] ?? strtoupper($attendance->status);
             @endphp
 
             <!-- EMPLOYEE INFO -->
@@ -42,8 +52,17 @@
                     <div class="p-3 border rounded bg-white shadow-sm">
                         <h6 class="fw-bold">⏰ Waktu Masuk</h6>
                         <p class="mb-0 text-muted">
-                            {{ $attendance->check_in?->format('Y-m-d H:i') ?? '-' }}
+                            {{ $attendance->first_in?->format('Y-m-d H:i') ?? '-' }}
                         </p>
+                        @if($attendance->employee->employment_type === 'monthly' && $attendance->isLateMonthly())
+                        <small class="text-danger d-block mt-2">
+                            <i class="bi bi-exclamation-circle me-1"></i> <strong>Masuk Telat</strong>
+                        </small>
+                        @elseif($attendance->employee->employment_type !== 'monthly' && $attendance->isLateShift())
+                        <small class="text-danger d-block mt-2">
+                            <i class="bi bi-exclamation-circle me-1"></i> <strong>Masuk Telat</strong>
+                        </small>
+                        @endif
                     </div>
                 </div>
 
@@ -51,8 +70,17 @@
                     <div class="p-3 border rounded bg-white shadow-sm">
                         <h6 class="fw-bold">🏁 Waktu Keluar</h6>
                         <p class="mb-0 text-muted">
-                            {{ $attendance->check_out?->format('Y-m-d H:i') ?? '-' }}
+                            {{ $attendance->last_out?->format('Y-m-d H:i') ?? '-' }}
                         </p>
+                        @if($attendance->employee->employment_type === 'monthly' && $attendance->isEarlyLeaveMonthly())
+                        <small class="text-warning d-block mt-2">
+                            <i class="bi bi-exclamation-circle me-1"></i> <strong>Pulang Cepat</strong>
+                        </small>
+                        @elseif($attendance->employee->employment_type !== 'monthly' && $attendance->isEarlyLeaveShift())
+                        <small class="text-warning d-block mt-2">
+                            <i class="bi bi-exclamation-circle me-1"></i> <strong>Pulang Cepat</strong>
+                        </small>
+                        @endif
                     </div>
                 </div>
 
@@ -74,11 +102,52 @@
                     </div>
                 </div>
 
+                @php
+                    $leaveInfo = $attendance->getLeaveInfo();
+                    $overtimePermit = $attendance->getOvertimePermit();
+                @endphp
+
+                @if($overtimePermit && $overtimePermit->isApproved())
+                <div class="col-md-12">
+                    <div class="p-3 border rounded bg-success bg-opacity-10 border-success">
+                        <h6 class="fw-bold text-success">
+                            <i class="bi bi-clock-history me-2"></i> Izin Lembur
+                        </h6>
+                        <p class="mb-1 text-dark">
+                            <strong>Waktu Lembur:</strong> Sampai {{ Carbon\Carbon::createFromFormat('H:i:s', $overtimePermit->overtime_end_time)->format('H:i') }}
+                        </p>
+                        <p class="mb-0 text-dark">
+                            <strong>Alasan:</strong> {{ $overtimePermit->reason ?? '-' }}
+                        </p>
+                    </div>
+                </div>
+                @endif
+
+                @if($leaveInfo)
+                <div class="col-md-12">
+                    <div class="p-3 border rounded bg-info bg-opacity-10 border-info">
+                        <h6 class="fw-bold text-info">
+                            <i class="bi bi-calendar-x me-2"></i> Informasi Cuti/Izin
+                        </h6>
+                        <p class="mb-1 text-dark">
+                            <strong>Tipe:</strong> {{ ucfirst(str_replace('_', ' ', $leaveInfo['type'])) }}
+                        </p>
+                        <p class="mb-1 text-dark">
+                            <strong>Alasan:</strong> {{ $leaveInfo['reason'] ?? '-' }}
+                        </p>
+                        <p class="mb-0 text-success">
+                            <strong>Kompensasi Jam:</strong> 
+                            <span class="badge bg-success">+{{ $leaveInfo['compensation'] }} Jam</span>
+                        </p>
+                    </div>
+                </div>
+                @endif
+
                 <div class="col-md-12">
                     <div class="p-3 border rounded bg-white shadow-sm">
                         <h6 class="fw-bold">📌 Status</h6>
                         <span class="badge bg-{{ $badgeColor }} px-3 py-2 fs-6">
-                            {{ ucfirst($attendance->status) }}
+                            {{ $statusLabel }}
                         </span>
                     </div>
                 </div>

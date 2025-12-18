@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             'department_id' => $deptIT->id,
             'join_year' => 2020,
             'umk' => 3500000,
+            'employment_type' => 'monthly',
         ]);
 
         Employee::create([
@@ -50,6 +51,7 @@ class DatabaseSeeder extends Seeder
             'department_id' => $deptIT->id,
             'join_year' => 2021,
             'umk' => 3500000,
+            'employment_type' => 'daily',
         ]);
 
         Employee::create([
@@ -63,6 +65,7 @@ class DatabaseSeeder extends Seeder
             'department_id' => $deptIT->id,
             'join_year' => 2022,
             'umk' => 3500000,
+            'employment_type' => 'daily',
         ]);
 
         Employee::create([
@@ -76,6 +79,7 @@ class DatabaseSeeder extends Seeder
             'department_id' => $deptHR->id,
             'join_year' => 2019,
             'umk' => 3500000,
+            'employment_type' => 'monthly',
         ]);
 
         Employee::create([
@@ -89,6 +93,7 @@ class DatabaseSeeder extends Seeder
             'department_id' => $deptAcc->id,
             'join_year' => 2020,
             'umk' => 3500000,
+            'employment_type' => 'monthly',
         ]);
 
         Employee::create([
@@ -102,6 +107,13 @@ class DatabaseSeeder extends Seeder
             'department_id' => $deptAcc->id,
             'join_year' => 2023,
             'umk' => 3500000,
+            'employment_type' => 'daily',
         ]);
+
+        // Seed work calendar holidays
+        $this->call(WorkCalendarSeeder::class);
+
+        // Seed comprehensive attendance data with various statuses
+        $this->call(ComprehensiveAttendanceSeeder::class);
     }
 }

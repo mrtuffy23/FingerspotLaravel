@@ -9,8 +9,16 @@
 
             <!-- Avatar -->
             <div class="me-3">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode($employee->name) }}&background=0D6EFD&color=fff&size=110"
-                     class="rounded-circle shadow-sm" width="90" height="90">
+                @if($employee->photo)
+                    <img src="{{ asset('storage/' . $employee->photo) }}" 
+                         alt="{{ $employee->name }}"
+                         class="rounded-circle shadow-sm" 
+                         width="90" height="90"
+                         style="object-fit: cover;">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($employee->name) }}&background=0D6EFD&color=fff&size=110"
+                         class="rounded-circle shadow-sm" width="90" height="90">
+                @endif
             </div>
 
             <!-- Employee Info -->
@@ -61,6 +69,13 @@
                     <h5 class="mb-0"><i class="bi bi-briefcase"></i> Informasi Pekerjaan</h5>
                 </div>
                 <div class="card-body">
+                    <p><strong>Jenis Karyawan:</strong> 
+                        @if($employee->employment_type === 'monthly')
+                            <span class="badge bg-info">Bulanan</span> - 08:00 - 16:00
+                        @else
+                            <span class="badge bg-warning text-dark">Harian</span> - 3 Shift (07:00-15:00, 15:00-23:00, 23:00-07:00)
+                        @endif
+                    </p>
                     <p><strong>Posisi:</strong> {{ $employee->position->name ?? '-' }}</p>
                     <p><strong>Departemen:</strong> {{ $employee->department->name ?? '-' }}</p>
                     <p><strong>Status:</strong> 
@@ -117,8 +132,8 @@
                                 @forelse($employee->attendances()->latest()->limit(10)->get() as $att)
                                     <tr>
                                         <td>{{ $att->date->format('Y-m-d') }}</td>
-                                        <td>{{ $att->check_in?->format('H:i') ?? '-' }}</td>
-                                        <td>{{ $att->check_out?->format('H:i') ?? '-' }}</td>
+                                        <td>{{ $att->first_in?->format('H:i') ?? '-' }}</td>
+                                        <td>{{ $att->last_out?->format('H:i') ?? '-' }}</td>
                                         <td>{{ $att->work_hours ?? '-' }}</td>
                                         <td>
                                             <span class="badge bg-success">{{ ucfirst($att->status) }}</span>

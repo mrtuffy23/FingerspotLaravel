@@ -12,7 +12,10 @@ class PayrollService {
                 ->whereBetween('date', [$period->start_date, $period->end_date])
                 ->get();
             $totalActual = $att->sum('work_hours');
-            $totalComp = $att->sum('compensated_hours');
+            // Hitung compensation secara real-time dari actual & leave data
+            $totalComp = $att->sum(function($record) {
+                return $record->calculateTotalCompensation();
+            });
             $total = round($totalActual + $totalComp,2);
             $umk = $emp->umk ?: config('company.umk', 0);
             $rateBase = $umk / 160;

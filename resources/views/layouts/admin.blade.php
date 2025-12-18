@@ -103,13 +103,6 @@
                         <i class="bi bi-calendar-check me-1"></i> Kehadiran
                     </a>
                 </li>
-
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('absen.*') ? 'active' : '' }}" href="/absen/import">
-                        <i class="bi bi-upload me-1"></i> Import Kehadiran
-                    </a>
-                </li>
-
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active' : '' }}" href="/payroll">
                         <i class="bi bi-cash-stack me-1"></i> Penggajian
@@ -119,6 +112,24 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('leave.*') ? 'active' : '' }}" href="/leave">
                         <i class="bi bi-file-earmark-text me-1"></i> Manajemen Cuti
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('overtime-permit.*') ? 'active' : '' }}" href="/overtime-permit">
+                        <i class="bi bi-clock-history me-1"></i> Izin Lembur
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('work-calendars.*') ? 'active' : '' }}" href="/work-calendars">
+                        <i class="bi bi-calendar-event me-1"></i> Kalender Kerja
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('holiday-compensation.*') ? 'active' : '' }}" href="/holiday-compensation/report">
+                        <i class="bi bi-gift me-1"></i> Kompensasi Libur
                     </a>
                 </li>
 

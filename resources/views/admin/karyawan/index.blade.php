@@ -31,7 +31,6 @@
                             <th>Nama</th>
                             <th>Departemen</th>
                             <th>Posisi</th>
-                            <th>Email</th>
                             <th style="width: 150px;">Aksi</th>
                         </tr>
                     </thead>
@@ -47,7 +46,6 @@
                                 </td>
                                 <td>{{ $employee->department?->name ?? '-' }}</td>
                                 <td>{{ $employee->position?->name ?? '-' }}</td>
-                                <td>{{ $employee->email }}</td>
 
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">

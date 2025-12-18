@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Leave;
 use App\Models\Employee;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class LeaveController extends Controller
 {
@@ -44,16 +46,82 @@ class LeaveController extends Controller
     public function approve($id)
     {
         $leave = Leave::findOrFail($id);
-        $leave->update(['approved_at' => now()]);
+        $leave->update([
+            'approved_at' => now(),
+            'approved_by' => auth()->id(),
+        ]);
 
-        return redirect()->route('leave.index')->with('success', 'Cuti berhasil disetujui');
+        // 🔄 AUTO-UPDATE ATTENDANCE UNTUK SEMUA HARI CUTI
+        $startDate = Carbon::parse($leave->start_date);
+        $endDate = Carbon::parse($leave->end_date);
+        
+        // Map leave type ke attendance status
+        $statusMap = [
+            'izin' => 'permission',
+            'sakit' => 'sick',
+            'sakit_sabtu' => 'sick',
+            'kecelakaan' => 'accident',
+            'cuti' => 'on_leave',
+            'izin_keluar' => 'out_permission',
+            'libur' => 'on_leave',
+        ];
+        
+        $attendanceStatus = $statusMap[$leave->type] ?? 'on_leave';
+        
+        // Update attendance untuk tiap hari dalam range cuti
+        for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
+            // Calculate leave compensation based on type
+            $leaveCompensation = 0;
+            if ($leave->type === 'sakit' && $date->isSaturday()) {
+                $leaveCompensation = 5; // Sakit di Sabtu = 5 jam
+            } elseif ($leave->type === 'sakit' || $leave->type === 'cuti' || $leave->type === 'kecelakaan') {
+                $leaveCompensation = 7; // Sakit/Cuti/Kecelakaan = 7 jam
+            }
+            // izin dan izin_keluar tidak dapat compensation
+            
+            Attendance::updateOrCreate(
+                [
+                    'employee_id' => $leave->employee_id,
+                    'date' => $date->toDateString(),
+                ],
+                [
+                    'status' => $attendanceStatus,
+                    'work_hours' => 0,
+                    'compensated_hours' => $leaveCompensation,
+                    'note' => "✅ Approved {$leave->type}: {$leave->reason}",
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]
+            );
+        }
+
+        return redirect()->route('leave.index')->with('success', 'Cuti berhasil disetujui & Attendance sudah di-update otomatis untuk ' . $leave->duration . ' hari (Kompensasi: ' . ($leaveCompensation > 0 ? $leaveCompensation . ' jam' : 'tidak ada') . ')');
     }
 
     public function reject($id)
     {
         $leave = Leave::findOrFail($id);
-        $leave->update(['approved_at' => null]);
+        $leave->update([
+            'approved_at' => null,
+            'approved_by' => null,
+        ]);
 
-        return redirect()->route('leave.index')->with('success', 'Cuti berhasil ditolak');
+        // 🔄 HAPUS/RESET ATTENDANCE YANG DI-CREATE SAAT APPROVE
+        $startDate = Carbon::parse($leave->start_date);
+        $endDate = Carbon::parse($leave->end_date);
+        
+        for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
+            // Cari attendance yang dibuat untuk cuti ini
+            $attendance = Attendance::where('employee_id', $leave->employee_id)
+                                    ->where('date', $date->toDateString())
+                                    ->first();
+            
+            if ($attendance) {
+                // Delete the attendance record (since leave is not approved)
+                $attendance->delete();
+            }
+        }
+
+        return redirect()->route('leave.index')->with('success', 'Cuti berhasil ditolak & Attendance sudah dihapus');
     }
 }

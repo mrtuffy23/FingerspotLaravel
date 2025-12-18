@@ -9,7 +9,7 @@ class Leave extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['employee_id', 'type', 'start_date', 'end_date', 'approved_by', 'approved_at', 'reason', 'duration'];
+    protected $fillable = ['employee_id', 'type', 'start_date', 'end_date', 'duration', 'approved_by', 'approved_at', 'reason'];
 
     protected $casts = [
         'start_date' => 'date',
@@ -20,6 +20,11 @@ class Leave extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     // Get status based on approved_at

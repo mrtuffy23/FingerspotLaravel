@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use App\Models\WorkCalendar;
+use App\Observers\WorkCalendarObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +28,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Aktifkan gaya pagination Bootstrap 5
         Paginator::useBootstrapFive();
+        
+        // 🔄 Register Observer untuk auto-sync Calendar & Attendance
+        WorkCalendar::observe(WorkCalendarObserver::class);
     }
 }

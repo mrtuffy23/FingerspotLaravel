@@ -85,6 +85,27 @@
             <i class="bi bi-briefcase me-1"></i> Job & Status
         </h4>
 
+        <!-- Employment Type -->
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Jenis Karyawan</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="employment_type" 
+                       id="monthly" value="monthly" 
+                       {{ old('employment_type', $employee->employment_type) === 'monthly' ? 'checked' : '' }}>
+                <label class="form-check-label" for="monthly">
+                    <strong>Karyawan Bulanan</strong> - Jam kerja 08:00 - 16:00
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="employment_type" 
+                       id="daily" value="daily" 
+                       {{ old('employment_type', $employee->employment_type) === 'daily' ? 'checked' : '' }}>
+                <label class="form-check-label" for="daily">
+                    <strong>Karyawan Harian</strong> - Tiga shift (07:00-15:00, 15:00-23:00, 23:00-07:00)
+                </label>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="position_id" class="form-label fw-semibold">Posisi</label>
@@ -138,6 +159,27 @@
             <label for="umk" class="form-label fw-semibold">UMK (Monthly Salary)</label>
             <input type="number" step="0.01" class="form-control form-control-lg @error('umk') is-invalid @enderror"
                    id="umk" name="umk" value="{{ old('umk', $employee->umk) }}" placeholder="Gaji Bulanan">
+        </div>
+
+        <div class="mb-4">
+            <label for="photo" class="form-label fw-semibold">Foto Profil</label>
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="file" class="form-control form-control-lg @error('photo') is-invalid @enderror"
+                           id="photo" name="photo" accept="image/*" placeholder="Upload foto profil">
+                    <small class="text-muted">Format: JPG, PNG, GIF (Max 2MB)</small>
+                </div>
+                <div class="col-md-6">
+                    @if($employee->photo)
+                        <div class="alert alert-info">
+                            <strong>Foto Saat Ini:</strong><br>
+                            <img src="{{ asset('storage/' . $employee->photo) }}" alt="Photo" class="img-thumbnail" width="100">
+                        </div>
+                    @else
+                        <div class="alert alert-warning">Belum ada foto profil</div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         <div class="d-flex justify-content-end gap-2 mt-4">

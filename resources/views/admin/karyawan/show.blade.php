@@ -24,8 +24,28 @@
 
     <!-- Informasi Pribadi & Pekerjaan -->
     <div class="row mt-4">
+        <!-- Card Foto Profil -->
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-4 text-center">
+                <div class="card-body p-4">
+                    @if($employee->photo)
+                        <img src="{{ asset('storage/' . $employee->photo) }}" 
+                             alt="{{ $employee->name }}" 
+                             class="img-fluid rounded-3 mb-3" 
+                             style="max-height: 250px; object-fit: cover;">
+                    @else
+                        <div class="bg-light rounded-3 p-5 mb-3">
+                            <i class="bi bi-person-circle text-muted" style="font-size: 80px;"></i>
+                        </div>
+                    @endif
+                    <h5 class="fw-bold">{{ $employee->name }}</h5>
+                    <p class="text-muted mb-0">{{ $employee->position?->name ?? '-' }}</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Card Informasi Pribadi -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-5 mb-3">
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-header bg-primary text-white rounded-top-4">
                     <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i> Informasi Pribadi</h5>
@@ -46,12 +66,19 @@
         </div>
 
         <!-- Card Informasi Pekerjaan -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-header bg-success text-white rounded-top-4">
                     <h5 class="mb-0"><i class="bi bi-briefcase-fill me-2"></i> Informasi Pekerjaan</h5>
                 </div>
                 <div class="card-body">
+                    <p><strong>Jenis Karyawan:</strong> 
+                        @if($employee->employment_type === 'monthly')
+                            <span class="badge bg-info">Bulanan (08:00 - 16:00)</span>
+                        @else
+                            <span class="badge bg-warning text-dark">Harian (3 Shift)</span>
+                        @endif
+                    </p>
                     <p><strong>Posisi:</strong> {{ $employee->position->name ?? '-' }}</p>
                     <p><strong>Departemen:</strong> {{ $employee->department->name ?? '-' }}</p>
 
@@ -97,8 +124,8 @@
                             @foreach($employee->attendances->take(5) as $att)
                                 <tr>
                                     <td>{{ is_string($att->date) ? $att->date : $att->date->format('Y-m-d') }}</td>
-                                    <td>{{ $att->check_in ? (is_string($att->check_in) ? substr($att->check_in, 0, 5) : $att->check_in->format('H:i')) : '-' }}</td>
-                                    <td>{{ $att->check_out ? (is_string($att->check_out) ? substr($att->check_out, 0, 5) : $att->check_out->format('H:i')) : '-' }}</td>
+                                    <td>{{ $att->first_in ? (is_string($att->first_in) ? substr($att->first_in, 0, 5) : $att->first_in->format('H:i')) : '-' }}</td>
+                                    <td>{{ $att->last_out ? (is_string($att->last_out) ? substr($att->last_out, 0, 5) : $att->last_out->format('H:i')) : '-' }}</td>
                                     <td><span class="badge bg-primary">{{ ucfirst($att->status) }}</span></td>
                                 </tr>
                             @endforeach

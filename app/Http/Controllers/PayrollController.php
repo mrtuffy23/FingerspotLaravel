@@ -55,4 +55,30 @@ class PayrollController extends Controller
 
         return redirect()->route('payroll.show', $period)->with('success', 'Payroll period finalized');
     }
+
+    public function printSlip($id)
+    {
+        $payroll = Payroll::with(['employee.position', 'payrollPeriod'])->findOrFail($id);
+        return view('admin.payroll.slip', compact('payroll'));
+    }
+
+    public function destroy($id)
+    {
+        $period = PayrollPeriod::findOrFail($id);
+
+        // Hanya bisa hapus jika masih draft
+        if ($period->status === 'finalized') {
+            return redirect()->route('payroll.index')
+                ->with('error', 'Tidak dapat menghapus periode payroll yang sudah difinalisasi');
+        }
+
+        // Hapus semua payroll yang terkait dengan periode ini
+        $period->payrolls()->delete();
+
+        // Hapus periode
+        $period->delete();
+
+        return redirect()->route('payroll.index')
+            ->with('success', 'Periode payroll berhasil dihapus');
+    }
 }

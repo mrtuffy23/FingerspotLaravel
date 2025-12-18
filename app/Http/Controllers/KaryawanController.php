@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class KaryawanController extends Controller
 {
@@ -35,7 +36,14 @@ class KaryawanController extends Controller
             'department_id' => 'required|exists:departments,id',
             'join_year' => 'nullable|integer',
             'umk' => 'nullable|numeric',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'employment_type' => 'required|in:monthly,daily',
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = $request->file('photo')->store('employees', 'public');
+        }
 
         Employee::create($validated);
 
@@ -71,7 +79,18 @@ class KaryawanController extends Controller
             'department_id' => 'required|exists:departments,id',
             'join_year' => 'nullable|integer',
             'umk' => 'nullable|numeric',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'employment_type' => 'required|in:monthly,daily',
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($employee->photo && Storage::disk('public')->exists($employee->photo)) {
+                Storage::disk('public')->delete($employee->photo);
+            }
+            $validated['photo'] = $request->file('photo')->store('employees', 'public');
+        }
 
         $employee->update($validated);
 

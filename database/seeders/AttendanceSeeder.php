@@ -16,9 +16,9 @@ class AttendanceSeeder extends Seeder
     {
         $employees = Employee::all();
         $startDate = Carbon::create(2025, 11, 1);
-        $endDate = Carbon::create(2025, 11, 30);
+        $endDate = Carbon::create(2025, 12, 10);
 
-        $statuses = ['present', 'late', 'early_leave', 'absent'];
+        $statuses = ['present', 'late', 'early_leave', 'absent', 'sick', 'permission'];
 
         for ($date = $startDate; $date <= $endDate; $date->addDay()) {
             // Lewati hari Minggu (weekend)
@@ -31,29 +31,42 @@ class AttendanceSeeder extends Seeder
                 $randomStatus = rand(1, 100);
                 
                 if ($randomStatus <= 70) {
-                    // 70% Present (Hadir)
+                    // 70% Present (Hadir) - Jam masuk 07:30-08:30, pulang 16:00-17:00
                     $status = 'present';
                     $firstIn = $date->copy()->setTime(rand(7, 8), rand(0, 59));
                     $lastOut = $date->copy()->setTime(rand(16, 17), rand(0, 59));
-                    $workHours = 8.5 + (rand(-30, 30) / 60); // 8-9 jam kerja
-                } elseif ($randomStatus <= 85) {
-                    // 15% Late (Terlambat)
+                } elseif ($randomStatus <= 80) {
+                    // 10% Late (Terlambat) - Jam masuk 08:30-09:30, pulang 16:30-17:30
                     $status = 'late';
-                    $firstIn = $date->copy()->setTime(rand(8, 9), rand(0, 59));
+                    $firstIn = $date->copy()->setTime(8, rand(30, 59))->addMinutes(rand(0, 60));
                     $lastOut = $date->copy()->setTime(rand(16, 17), rand(0, 59));
-                    $workHours = 7.5 + (rand(-30, 30) / 60); // 7-8 jam kerja
-                } elseif ($randomStatus <= 95) {
-                    // 10% Early Leave (Pulang Cepat)
+                } elseif ($randomStatus <= 88) {
+                    // 8% Early Leave (Pulang Cepat) - Jam masuk 08:00, pulang 14:00-15:00
                     $status = 'early_leave';
-                    $firstIn = $date->copy()->setTime(rand(7, 8), rand(0, 59));
+                    $firstIn = $date->copy()->setTime(rand(7, 8), rand(30, 59));
                     $lastOut = $date->copy()->setTime(rand(14, 15), rand(0, 59));
-                    $workHours = 6.5 + (rand(-30, 30) / 60); // 6-7 jam kerja
+                } elseif ($randomStatus <= 93) {
+                    // 5% Sick (Sakit)
+                    $status = 'sick';
+                    $firstIn = null;
+                    $lastOut = null;
+                } elseif ($randomStatus <= 98) {
+                    // 5% Permission (Izin)
+                    $status = 'permission';
+                    $firstIn = null;
+                    $lastOut = null;
                 } else {
-                    // 5% Absent (Tidak Hadir)
+                    // 2% Absent (Tidak Hadir)
                     $status = 'absent';
                     $firstIn = null;
                     $lastOut = null;
-                    $workHours = 0;
+                }
+
+                // Hitung work_hours otomatis dari first_in dan last_out (minus 1 jam istirahat)
+                $workHours = 0;
+                if ($firstIn && $lastOut) {
+                    $diffHours = $lastOut->diffInMinutes($firstIn) / 60;
+                    $workHours = max(0, $diffHours - 1); // Kurangi 1 jam istirahat
                 }
 
                 Attendance::create([
@@ -61,7 +74,7 @@ class AttendanceSeeder extends Seeder
                     'date' => $date->format('Y-m-d'),
                     'first_in' => $firstIn,
                     'last_out' => $lastOut,
-                    'work_hours' => $workHours,
+                    'work_hours' => round($workHours, 2),
                     'compensated_hours' => 0,
                     'status' => $status,
                     'point_delta' => 0,
@@ -70,6 +83,6 @@ class AttendanceSeeder extends Seeder
             }
         }
 
-        $this->command->info('Attendance data for November 2025 seeded successfully!');
+        $this->command->info('✅ Attendance data (Nov 1 - Dec 10, 2025) seeded successfully!');
     }
 }

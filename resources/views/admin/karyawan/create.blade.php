@@ -70,6 +70,28 @@
 
             <!-- Job Info -->
             <h5 class="fw-bold text-primary mt-4 mb-3">3. Informasi Pekerjaan</h5>
+            
+            <!-- Employment Type -->
+            <div class="mb-3">
+                <label class="form-label">Jenis Karyawan</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="employment_type" 
+                           id="monthly" value="monthly" 
+                           {{ old('employment_type', 'monthly') === 'monthly' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="monthly">
+                        <strong>Karyawan Bulanan</strong> - Jam kerja 08:00 - 16:00
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="employment_type" 
+                           id="daily" value="daily" 
+                           {{ old('employment_type') === 'daily' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="daily">
+                        <strong>Karyawan Harian</strong> - Tiga shift (07:00-15:00, 15:00-23:00, 23:00-07:00)
+                    </label>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Posisi</label>
@@ -127,6 +149,15 @@
                 <label class="form-label">UMK</label>
                 <input type="number" step="0.01" class="form-control @error('umk') is-invalid @enderror"
                        name="umk" value="{{ old('umk') }}" placeholder="Masukkan UMK">
+            </div>
+
+            <!-- Photo -->
+            <h5 class="fw-bold text-primary mt-4 mb-3">6. Foto Profil</h5>
+            <div class="mb-3">
+                <label class="form-label">Foto Karyawan</label>
+                <input type="file" class="form-control @error('photo') is-invalid @enderror"
+                       name="photo" accept="image/*" placeholder="Upload foto profil">
+                <small class="text-muted">Format: JPG, PNG, GIF (Max 2MB)</small>
             </div>
 
             <!-- Buttons -->

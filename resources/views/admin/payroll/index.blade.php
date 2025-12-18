@@ -67,14 +67,25 @@
                                         <i class="bi bi-eye"></i>
                                     </a>
 
-                                    @if($period->status === 'draft')
+                                    @if($period->status !== 'finalized')
                                         <form action="{{ route('payroll.finalize', $period) }}" 
                                               method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" 
-                                                class="btn btn-sm btn-success"
+                                                class="btn btn-sm btn-success me-1"
                                                 onclick="return confirm('Yakin finalize payroll ini?')">
-                                                <i class="bi bi-check2-circle"></i>
+                                                <i class="bi bi-check2-circle"></i> Finalize
+                                            </button>
+                                        </form>
+
+                                        <form action="{{ route('payroll.destroy', $period) }}" 
+                                              method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Yakin hapus periode payroll ini? Semua data payroll di periode ini akan ikut terhapus!')">
+                                                <i class="bi bi-trash"></i> Hapus
                                             </button>
                                         </form>
                                     @endif

@@ -29,6 +29,72 @@
             </h5>
         </div>
 
+        <!-- Search/Filter Form -->
+        <div class="card-body bg-light border-bottom py-3">
+            <form method="GET" action="{{ route('attendance.index') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar me-1"></i> Tanggal
+                    </label>
+                    <input type="date" class="form-control" name="date" value="{{ request('date') }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-range me-1"></i> Dari Tanggal
+                    </label>
+                    <input type="date" class="form-control" name="start_date" value="{{ request('start_date') }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-calendar-range me-1"></i> Sampai Tanggal
+                    </label>
+                    <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-person-circle me-1"></i> Karyawan
+                    </label>
+                    <select class="form-select" name="employee_id">
+                        <option value="">Semua Karyawan</option>
+                        @foreach($employees as $emp)
+                            <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
+                                {{ $emp->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-flag me-1"></i> Status
+                    </label>
+                    <select class="form-select" name="status">
+                        <option value="">Semua Status</option>
+                        <option value="present" {{ request('status') === 'present' ? 'selected' : '' }}>Hadir</option>
+                        <option value="late" {{ request('status') === 'late' ? 'selected' : '' }}>Telat</option>
+                        <option value="absent" {{ request('status') === 'absent' ? 'selected' : '' }}>Alpa</option>
+                        <option value="sick" {{ request('status') === 'sick' ? 'selected' : '' }}>Sakit</option>
+                        <option value="on_leave" {{ request('status') === 'on_leave' ? 'selected' : '' }}>Cuti</option>
+                        <option value="early_leave" {{ request('status') === 'early_leave' ? 'selected' : '' }}>Pulang Cepat</option>
+                        <option value="accident" {{ request('status') === 'accident' ? 'selected' : '' }}>Kecelakaan</option>
+                        <option value="permission" {{ request('status') === 'permission' ? 'selected' : '' }}>Izin</option>
+                    </select>
+                </div>
+
+                <div class="col-md-9 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary shadow-sm px-4">
+                        <i class="bi bi-search me-1"></i> Cari
+                    </button>
+                    <a href="{{ route('attendance.index') }}" class="btn btn-outline-secondary shadow-sm px-4">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <!-- Table -->
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -41,6 +107,7 @@
                             <th>Check In</th>
                             <th>Check Out</th>
                             <th>Jam Kerja</th>
+                            <th>Kompensasi</th>
                             <th>Status</th>
                             <th style="width: 150px">Aksi</th>
                         </tr>
@@ -65,6 +132,20 @@
 
                             <td>
                                 @php
+                                    $leaveComp = $attendance->getLeaveCompensation();
+                                    $totalComp = $attendance->calculateTotalCompensation();
+                                @endphp
+                                @if($leaveComp > 0 || $totalComp > 0)
+                                    <span class="badge bg-success">
+                                        +{{ number_format($totalComp, 1) }} Jam
+                                    </span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+
+                            <td>
+                                @php
                                     $badgeColor = [
                                         'present' => 'success',
                                         'absent'  => 'danger',
@@ -79,16 +160,16 @@
                                     ][$attendance->status] ?? 'dark';
                                     
                                     $statusLabel = [
-                                        'present' => 'PRESENT',
-                                        'absent'  => 'ABSENT',
-                                        'late'    => 'LATE',
-                                        'sick'    => 'SICK',
-                                        'on_leave' => 'ON LEAVE',
-                                        'early_leave' => 'EARLY LEAVE',
-                                        'accident' => 'ACCIDENT',
-                                        'holiday' => 'HOLIDAY',
-                                        'permission' => 'PERMISSION',
-                                        'out_permission' => 'OUT PERMISSION',
+                                        'present' => 'HADIR',
+                                        'absent'  => 'ALPA',
+                                        'late'    => 'TELAT',
+                                        'sick'    => 'SAKIT',
+                                        'on_leave' => 'CUTI',
+                                        'early_leave' => 'PULANG CEPAT',
+                                        'accident' => 'KECELAKAAN',
+                                        'holiday' => 'LIBUR',
+                                        'permission' => 'IZIN',
+                                        'out_permission' => 'IZIN KELUAR',
                                     ][$attendance->status] ?? strtoupper($attendance->status);
                                 @endphp
 
@@ -113,8 +194,15 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="py-4 text-muted">
-                                <i class="bi bi-info-circle me-2"></i> Belum ada data absensi.
+                            <td colspan="8" class="py-4 text-center">
+                                <div class="text-muted">
+                                    <i class="bi bi-info-circle me-2"></i> 
+                                    @if(request()->hasAny(['date', 'start_date', 'end_date', 'employee_id', 'status']))
+                                        Tidak ada data absensi yang sesuai dengan filter.
+                                    @else
+                                        Belum ada data absensi.
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @endforelse
