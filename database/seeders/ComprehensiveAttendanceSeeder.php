@@ -95,8 +95,9 @@ class ComprehensiveAttendanceSeeder extends Seeder
                         [
                             'status' => $attendanceStatus,
                             'work_hours' => 0,
-                            'compensated_hours' => $leaveCompensation,
-                            'note' => "✅ Approved {$leave['type']}: {$leave['reason']}",
+                            // Leave compensation now calculated dynamically to avoid double-counting
+                            'compensated_hours' => 0,
+                            'notes' => "✅ Approved {$leave['type']}: {$leave['reason']}",
                             'approved_by' => 4, // HR approve
                             'approved_at' => Carbon::now(),
                         ]
@@ -173,7 +174,7 @@ class ComprehensiveAttendanceSeeder extends Seeder
                     'compensated_hours' => 0,
                     'status' => $status,
                     'point_delta' => 0,
-                    'note' => $note,
+                    'notes' => $note,
                 ]);
             }
         }

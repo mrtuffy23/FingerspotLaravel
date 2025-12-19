@@ -378,16 +378,16 @@ class Attendance extends Model
      */
     public function calculateTotalCompensation(): float
     {
-        $totalCompensation = $this->compensated_hours ?? 0;
+        $baseComp = $this->compensated_hours ?? 0;
 
-        // Add leave-based compensation if applicable
+        // For leave days, use leave compensation (avoid double-counting with stored compensated_hours)
         $leave = LeaveCompensationService::getLeaveForDate($this->employee_id, Carbon::parse($this->date));
         if ($leave) {
-            $leaveCompensation = LeaveCompensationService::calculateLeaveCompensation($leave->type, Carbon::parse($this->date));
-            $totalCompensation += $leaveCompensation;
+            $leaveComp = LeaveCompensationService::calculateLeaveCompensation($leave->type, Carbon::parse($this->date));
+            return max($baseComp, $leaveComp);
         }
 
-        return $totalCompensation;
+        return $baseComp;
     }
 
     /**

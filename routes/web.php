@@ -8,6 +8,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\WorkCalendarController;
 use App\Http\Controllers\HolidayCompensationController;
 use App\Http\Controllers\OvertimePermitController;
+use App\Http\Controllers\ShiftAssignmentController;
 
 
 // Public Routes
@@ -66,4 +67,7 @@ Route::post('leave/{leave}/reject', [LeaveController::class, 'reject'])->name('l
 
 // Work Calendar Management
 Route::resource('work-calendars', WorkCalendarController::class);
+
+// Shift Assignment Management
+Route::resource('shift-assignments', ShiftAssignmentController::class);
 

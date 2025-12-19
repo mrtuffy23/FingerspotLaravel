@@ -9,18 +9,24 @@ use Carbon\Carbon;
 class LeaveCompensationService
 {
     /**
-     * Mapping leave types to compensation hours
-     * izin sakit = 7 hours
-     * izin sakit hari sabtu = 5 hours
-     * izin sakit kecelakaan kerja = 7 hours
-     * cuti = 7 hours
+     * Mapping leave types to compensation hours (supports EN + ID keys)
      */
     private static array $leaveCompensationMap = [
+        // Sakit (weekday)
         'sick_leave' => 7,
+        'sakit' => 7,
+        // Sakit Sabtu
         'sick_leave_saturday' => 5,
+        'sakit_sabtu' => 5,
+        // Kecelakaan kerja
         'work_accident' => 7,
+        'kecelakaan' => 7,
+        // Cuti tahunan
         'vacation' => 7,
-        'permission' => 0, // No compensation for permission
+        'cuti' => 7,
+        // Izin (no compensation)
+        'permission' => 0,
+        'izin' => 0,
         'permission_half_day' => 0,
     ];
 
@@ -41,8 +47,10 @@ class LeaveCompensationService
      */
     public static function calculateLeaveCompensation($leaveType, Carbon $date): float
     {
+        $leaveType = (string) $leaveType;
+
         // Cek jika sakit di hari Sabtu
-        if ($leaveType === 'sick_leave' && $date->isSaturday()) {
+        if (in_array($leaveType, ['sick_leave', 'sakit'], true) && $date->isSaturday()) {
             return self::$leaveCompensationMap['sick_leave_saturday'] ?? 5;
         }
 
@@ -84,10 +92,14 @@ class LeaveCompensationService
         }
 
         $descriptions = [
-            'sick_leave' => "Izin Sakit: +{$compensationHours} jam kerja",
-            'sick_leave_saturday' => "Izin Sakit (Sabtu): +{$compensationHours} jam kerja",
-            'work_accident' => "Izin Sakit Kecelakaan: +{$compensationHours} jam kerja",
+            'sick_leave' => "Izin sakit: +{$compensationHours} jam kerja",
+            'sakit' => "Izin sakit: +{$compensationHours} jam kerja",
+            'sick_leave_saturday' => "Izin sakit (Sabtu): +{$compensationHours} jam kerja",
+            'sakit_sabtu' => "Izin sakit (Sabtu): +{$compensationHours} jam kerja",
+            'work_accident' => "Kecelakaan kerja: +{$compensationHours} jam kerja",
+            'kecelakaan' => "Kecelakaan kerja: +{$compensationHours} jam kerja",
             'vacation' => "Cuti: +{$compensationHours} jam kerja",
+            'cuti' => "Cuti: +{$compensationHours} jam kerja",
         ];
 
         foreach ($descriptions as $key => $description) {

@@ -75,6 +75,9 @@ class AttendanceController extends Controller
             $attendance->update(['work_hours' => round($workHours, 2)]);
         }
 
+        // Recalculate status based on schedule if applicable
+        $this->recalculateStatus($attendance);
+
         // Apply leave compensation if applicable
         $attendance = $this->applyLeaveCompensation($attendance);
 
@@ -129,6 +132,9 @@ class AttendanceController extends Controller
             $workHours = $attendance->calculateShiftWorkHours();
             $attendance->update(['work_hours' => round($workHours, 2)]);
         }
+
+        // Recalculate status based on schedule if applicable
+        $this->recalculateStatus($attendance);
 
         // Apply leave compensation if applicable
         $attendance = $this->applyLeaveCompensation($attendance);
@@ -210,5 +216,44 @@ class AttendanceController extends Controller
             'reason' => $leave->reason ?? '-',
             'compensation' => $compensation,
         ]);
+    }
+
+    /**
+     * Recalculate status (present/late/early_leave) using schedule & times.
+     * Does not override leave-related statuses.
+     */
+    private function recalculateStatus(Attendance $attendance): void
+    {
+        // Skip if leave-related status
+        $leaveStatuses = ['sick', 'on_leave', 'permission', 'accident', 'holiday', 'out_permission'];
+        if (in_array($attendance->status, $leaveStatuses, true)) {
+            return;
+        }
+
+        // Only recalc when we have times
+        if (!$attendance->first_in || !$attendance->last_out) {
+            return;
+        }
+
+        $employee = $attendance->employee;
+        $newStatus = 'present';
+
+        if ($employee->employment_type === 'monthly') {
+            if ($attendance->isLateMonthly()) {
+                $newStatus = 'late';
+            } elseif ($attendance->isEarlyLeaveMonthly()) {
+                $newStatus = 'early_leave';
+            }
+        } else {
+            if ($attendance->isLateShift()) {
+                $newStatus = 'late';
+            } elseif ($attendance->isEarlyLeaveShift()) {
+                $newStatus = 'early_leave';
+            }
+        }
+
+        if ($attendance->status !== $newStatus) {
+            $attendance->update(['status' => $newStatus]);
+        }
     }
 }

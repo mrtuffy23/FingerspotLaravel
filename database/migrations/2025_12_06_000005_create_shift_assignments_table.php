@@ -8,9 +8,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->foreignId('shift_id')->constrained('shifts')->cascadeOnDelete();
-            $table->date('date');
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
             $table->timestamps();
-            $table->unique(['employee_id','date']);
         });
     }
     public function down() { Schema::dropIfExists('shift_assignments'); }

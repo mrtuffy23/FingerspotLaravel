@@ -110,10 +110,18 @@ class DatabaseSeeder extends Seeder
             'employment_type' => 'daily',
         ]);
 
+        // Seed shifts and assign to employees
+        $this->call(ShiftSeeder::class);
+        $this->call(ShiftAssignmentSeeder::class);
+
         // Seed work calendar holidays
         $this->call(WorkCalendarSeeder::class);
 
         // Seed comprehensive attendance data with various statuses
         $this->call(ComprehensiveAttendanceSeeder::class);
+
+        // Seed payroll periods and generate payrolls
+        $this->call(PayrollPeriodSeeder::class);
+        $this->call(PayrollSeeder::class);
     }
 }

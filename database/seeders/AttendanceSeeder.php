@@ -78,7 +78,7 @@ class AttendanceSeeder extends Seeder
                     'compensated_hours' => 0,
                     'status' => $status,
                     'point_delta' => 0,
-                    'note' => null,
+                    'notes' => null,
                 ]);
             }
         }

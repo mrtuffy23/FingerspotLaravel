@@ -173,8 +173,12 @@
                     <i class="bi bi-cash-stack me-1"></i> Buat Penggajian
                 </a>
 
-                <a href="{{ route('leave.create') }}" class="btn btn-info quick-btn">
+                <a href="{{ route('leave.create') }}" class="btn btn-info quick-btn me-2">
                     <i class="bi bi-calendar-plus me-1"></i> Cuti Baru
+                </a>
+
+                <a href="{{ route('shift-assignments.index') }}" class="btn btn-secondary quick-btn">
+                    <i class="bi bi-clock-history me-1"></i> Penugasan Shift
                 </a>
 
             </div>
