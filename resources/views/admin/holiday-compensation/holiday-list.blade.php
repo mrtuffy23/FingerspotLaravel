@@ -64,7 +64,7 @@
                             <th>Hari</th>
                             <th>Deskripsi</th>
                             <th>Tipe</th>
-                            <th style="width: 150px">Status</th>
+                            <th class="text-nowrap">Status</th>
                         </tr>
                     </thead>
 

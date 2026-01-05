@@ -165,9 +165,10 @@ class ComprehensiveAttendanceSeeder extends Seeder
                     $note = 'Alpa';
                 }
 
-                Attendance::create([
+                Attendance::firstOrCreate([
                     'employee_id' => $employee->id,
                     'date' => $date->format('Y-m-d'),
+                ], [
                     'first_in' => $firstIn,
                     'last_out' => $lastOut,
                     'work_hours' => round($workHours, 2),

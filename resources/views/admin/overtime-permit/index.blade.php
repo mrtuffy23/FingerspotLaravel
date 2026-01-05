@@ -53,13 +53,13 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 5%">ID</th>
-                        <th style="width: 20%">Karyawan</th>
-                        <th style="width: 15%">Tanggal</th>
-                        <th style="width: 15%">Waktu Lembur Sampai</th>
-                        <th style="width: 20%">Alasan</th>
-                        <th style="width: 15%">Status</th>
-                        <th style="width: 10%">Aksi</th>
+                        <th class="text-nowrap">ID</th>
+                        <th>Karyawan</th>
+                        <th>Tanggal</th>
+                        <th>Waktu Lembur Sampai</th>
+                        <th>Alasan</th>
+                        <th>Status</th>
+                        <th class="text-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,7 +98,7 @@
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 @if (!$permit->isApproved())
-                                <form action="{{ route('overtime-permit.approve', $permit) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('overtime-permit.approve', $permit) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-outline-success btn-sm" title="Setujui" 
                                         onclick="return confirm('Setujui izin lembur ini?')">
@@ -106,7 +106,7 @@
                                     </button>
                                 </form>
                                 @else
-                                <form action="{{ route('overtime-permit.reject', $permit) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('overtime-permit.reject', $permit) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-outline-danger btn-sm" title="Batalkan Approval" 
                                         onclick="return confirm('Batalkan approval izin lembur ini?')">

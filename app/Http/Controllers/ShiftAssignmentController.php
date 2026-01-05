@@ -50,8 +50,9 @@ class ShiftAssignmentController extends Controller
     {
         $employees = Employee::orderBy('name')->get();
         $shifts = Shift::orderBy('code')->get();
+        $assignments = ShiftAssignment::with('employee', 'shift')->get();
 
-        return view('admin.shift-assignments.create', compact('employees', 'shifts'));
+        return view('admin.shift-assignments.create', compact('employees', 'shifts', 'assignments'));
     }
 
     public function store(Request $request)

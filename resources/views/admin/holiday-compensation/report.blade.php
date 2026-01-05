@@ -129,7 +129,7 @@
                             <th>Hari Libur</th>
                             <th>Jam Kerja</th>
                             <th>Bonus Kompensasi</th>
-                            <th style="width: 100px">Aksi</th>
+                            <th class="text-nowrap">Aksi</th>
                         </tr>
                     </thead>
 

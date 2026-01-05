@@ -43,8 +43,8 @@ class PayrollController extends Controller
 
     public function show($id)
     {
-        $period = PayrollPeriod::with(['payrolls.employee'])->findOrFail($id);
-        $payrolls = $period->payrolls()->paginate(15);
+        $period = PayrollPeriod::with(['payrolls.employee.classification', 'payrolls.payrollDetails'])->findOrFail($id);
+        $payrolls = $period->payrolls()->with(['employee.classification', 'payrollDetails'])->paginate(15);
         return view('admin.payroll.show', compact('period', 'payrolls'));
     }
 
@@ -56,11 +56,20 @@ class PayrollController extends Controller
         return redirect()->route('payroll.show', $period)->with('success', 'Payroll period finalized');
     }
 
-    public function printSlip($id)
-    {
-        $payroll = Payroll::with(['employee.position', 'payrollPeriod'])->findOrFail($id);
-        return view('admin.payroll.slip', compact('payroll'));
-    }
+    public function slip($id)
+{
+    // Ambil data payroll dengan relasi yang dibutuhkan
+    $payroll = Payroll::with([
+        'employee',
+        'employee.position',
+        'employee.department', 
+        'employee.classification',
+        'payrollPeriod',
+        'payrollDetails'
+    ])->findOrFail($id);
+    
+    return view('admin.payroll.slip', compact('payroll'));
+}
 
     public function destroy($id)
     {

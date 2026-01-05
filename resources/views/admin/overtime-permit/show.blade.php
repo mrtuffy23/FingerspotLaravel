@@ -92,7 +92,7 @@
         </a>
 
         @if (!$overtimePermit->isApproved())
-        <form action="{{ route('overtime-permit.approve', $overtimePermit) }}" method="POST" style="display: inline;">
+        <form action="{{ route('overtime-permit.approve', $overtimePermit) }}" method="POST" class="d-inline">
             @csrf
             <button type="submit" class="btn btn-success" 
                 onclick="return confirm('Setujui izin lembur ini?')">
@@ -100,7 +100,7 @@
             </button>
         </form>
         @else
-        <form action="{{ route('overtime-permit.reject', $overtimePermit) }}" method="POST" style="display: inline;">
+        <form action="{{ route('overtime-permit.reject', $overtimePermit) }}" method="POST" class="d-inline">
             @csrf
             <button type="submit" class="btn btn-danger" 
                 onclick="return confirm('Batalkan approval izin lembur ini?')">
@@ -109,7 +109,7 @@
         </form>
         @endif
 
-        <form action="{{ route('overtime-permit.destroy', $overtimePermit) }}" method="POST" style="display: inline;">
+        <form action="{{ route('overtime-permit.destroy', $overtimePermit) }}" method="POST" class="d-inline">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-outline-danger" 

@@ -10,11 +10,11 @@
             <!-- Avatar -->
             <div class="me-3">
                 @if($employee->photo)
-                    <img src="{{ asset('storage/' . $employee->photo) }}" 
+                    <img src="{{ asset($employee->photo) }}" 
                          alt="{{ $employee->name }}"
                          class="rounded-circle shadow-sm" 
                          width="90" height="90"
-                         style="object-fit: cover;">
+                            class="rounded-circle shadow-sm" width="90" height="90" style="object-fit: cover;">
                 @else
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($employee->name) }}&background=0D6EFD&color=fff&size=110"
                          class="rounded-circle shadow-sm" width="90" height="90">

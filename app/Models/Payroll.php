@@ -12,7 +12,8 @@ class Payroll extends Model
     protected $fillable = [
         'employee_id', 'payroll_period_id', 'total_actual_hours',
         'total_compensated_hours', 'total_hours', 'rate_base',
-        'rate_allowance', 'base_salary', 'allowance_amount', 'total_salary'
+        'base_salary', 'total_fixed_allowance', 'total_variable_allowance', 'total_salary',
+        'total_fixed_deduction', 'total_variable_deduction', 'total_deduction', 'net_salary'
     ];
 
     protected $casts = [
@@ -20,10 +21,14 @@ class Payroll extends Model
         'total_compensated_hours' => 'float',
         'total_hours' => 'float',
         'rate_base' => 'float',
-        'rate_allowance' => 'float',
         'base_salary' => 'float',
-        'allowance_amount' => 'float',
+        'total_fixed_allowance' => 'float',
+        'total_variable_allowance' => 'float',
         'total_salary' => 'float',
+        'total_fixed_deduction' => 'float',
+        'total_variable_deduction' => 'float',
+        'total_deduction' => 'float',
+        'net_salary' => 'float',
     ];
 
     public function employee()
@@ -34,5 +39,10 @@ class Payroll extends Model
     public function payrollPeriod()
     {
         return $this->belongsTo(PayrollPeriod::class);
+    }
+
+    public function payrollDetails()
+    {
+        return $this->hasMany(PayrollDetail::class);
     }
 }

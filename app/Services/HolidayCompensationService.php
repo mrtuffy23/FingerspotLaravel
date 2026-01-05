@@ -53,8 +53,8 @@ class HolidayCompensationService
     }
 
     /**
-     * Hitung kompensasi jam kerja untuk hari libur
-     * Logika baru:
+     * Hitung kompensasi jam kerja untuk hari libur (FIXED BONUS VERSION)
+     * Logika:
      * - Jika jam_kerja == 5 jam, maka ditambah 3 (total 8 jam)
      * - Jika jam_kerja == 6 jam, maka ditambah 4 (total 10 jam)
      * - Jika jam_kerja >= 7 jam, maka ditambah 5 (total 12+ jam)
@@ -81,6 +81,45 @@ class HolidayCompensationService
         }
 
         return round($compensationBonus, 2);
+    }
+
+    /**
+     * Fix data lama dengan logika kompensasi yang benar
+     * Mengubah dari rumus 50% menjadi rumus bonus tetap
+     */
+    public static function fixOldCompensationData($startDate = null, $endDate = null): array
+    {
+        $query = Attendance::where('work_hours', '>', 0);
+
+        if ($startDate) {
+            $query->where('date', '>=', Carbon::parse($startDate));
+        }
+        if ($endDate) {
+            $query->where('date', '<=', Carbon::parse($endDate));
+        }
+
+        $attendances = $query->get();
+        $fixedCount = 0;
+
+        foreach ($attendances as $attendance) {
+            if (self::isHoliday(Carbon::parse($attendance->date))) {
+                $oldValue = $attendance->compensated_hours ?? 0;
+                $newValue = self::calculateCompensatedHours($attendance->work_hours, Carbon::parse($attendance->date));
+
+                if ($oldValue != $newValue) {
+                    $attendance->update(['compensated_hours' => $newValue]);
+                    $fixedCount++;
+                }
+            }
+        }
+
+        return [
+            'total_fixed' => $fixedCount,
+            'period' => [
+                'start' => $startDate,
+                'end' => $endDate,
+            ]
+        ];
     }
 
     /**

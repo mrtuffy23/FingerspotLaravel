@@ -4,12 +4,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 class Employee extends Model {
     use HasFactory;
-    protected $fillable = ['pin','nik','name','birth_place','birth_date','status','position_id','department_id','join_year','umk','photo','employment_type'];
+    protected $fillable = ['pin','nik','name','birth_place','birth_date','status','position_id','department_id','join_year','umk','photo','employment_type','classification_id'];
+    protected $casts = ['birth_date' => 'date'];
     public function position() { return $this->belongsTo(Position::class); }
     public function department() { return $this->belongsTo(Department::class); }
+    public function classification() { return $this->belongsTo(Classification::class); }
     public function attendances() { return $this->hasMany(Attendance::class); }
     public function leaves() { return $this->hasMany(Leave::class); }
     public function payrolls() { return $this->hasMany(Payroll::class); }
     public function shiftAssignments() { return $this->hasMany(ShiftAssignment::class); }
     public function shifts() { return $this->belongsToMany(Shift::class, 'shift_assignments'); }
+    public function deductions() { return $this->hasMany(EmployeeDeduction::class); }
 }

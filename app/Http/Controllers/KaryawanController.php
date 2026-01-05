@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Department;
+use App\Models\Classification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class KaryawanController extends Controller
 {
     public function index()
     {
-        $employees = Employee::with(['position', 'department'])->paginate(15);
+        $employees = Employee::with(['position', 'department', 'classification'])->paginate(15);
         return view('admin.karyawan.index', compact('employees'));
     }
 
@@ -20,7 +20,8 @@ class KaryawanController extends Controller
     {
         $positions = Position::all();
         $departments = Department::all();
-        return view('admin.karyawan.create', compact('positions', 'departments'));
+        $classifications = Classification::all();
+        return view('admin.karyawan.create', compact('positions', 'departments', 'classifications'));
     }
 
     public function store(Request $request)
@@ -34,6 +35,7 @@ class KaryawanController extends Controller
             'status' => 'required|in:aktif,nonaktif,kontrak,resign',
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'required|exists:departments,id',
+            'classification_id' => 'required|exists:classifications,id',
             'join_year' => 'nullable|integer',
             'umk' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -42,7 +44,10 @@ class KaryawanController extends Controller
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('employees', 'public');
+            $photoFile = $request->file('photo');
+            $photoName = time() . '_' . uniqid() . '.' . $photoFile->getClientOriginalExtension();
+            $photoFile->move(public_path('uploads/employees'), $photoName);
+            $validated['photo'] = 'uploads/employees/' . $photoName;
         }
 
         Employee::create($validated);
@@ -52,7 +57,7 @@ class KaryawanController extends Controller
 
     public function show($id)
     {
-        $employee = Employee::with(['position', 'department', 'attendances', 'payrolls'])->findOrFail($id);
+        $employee = Employee::with(['position', 'department', 'classification', 'attendances', 'payrolls'])->findOrFail($id);
         return view('admin.karyawan.show', compact('employee'));
     }
 
@@ -61,7 +66,8 @@ class KaryawanController extends Controller
         $employee = Employee::findOrFail($id);
         $positions = Position::all();
         $departments = Department::all();
-        return view('admin.karyawan.edit', compact('employee', 'positions', 'departments'));
+        $classifications = Classification::all();
+        return view('admin.karyawan.edit', compact('employee', 'positions', 'departments', 'classifications'));
     }
 
     public function update(Request $request, $id)
@@ -77,6 +83,7 @@ class KaryawanController extends Controller
             'status' => 'required|in:aktif,nonaktif,kontrak,resign',
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'required|exists:departments,id',
+            'classification_id' => 'required|exists:classifications,id',
             'join_year' => 'nullable|integer',
             'umk' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -86,10 +93,13 @@ class KaryawanController extends Controller
         // Handle photo upload
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
-            if ($employee->photo && Storage::disk('public')->exists($employee->photo)) {
-                Storage::disk('public')->delete($employee->photo);
+            if ($employee->photo && file_exists(public_path($employee->photo))) {
+                unlink(public_path($employee->photo));
             }
-            $validated['photo'] = $request->file('photo')->store('employees', 'public');
+            $photoFile = $request->file('photo');
+            $photoName = time() . '_' . uniqid() . '.' . $photoFile->getClientOriginalExtension();
+            $photoFile->move(public_path('uploads/employees'), $photoName);
+            $validated['photo'] = 'uploads/employees/' . $photoName;
         }
 
         $employee->update($validated);

@@ -9,6 +9,8 @@ use App\Http\Controllers\WorkCalendarController;
 use App\Http\Controllers\HolidayCompensationController;
 use App\Http\Controllers\OvertimePermitController;
 use App\Http\Controllers\ShiftAssignmentController;
+use App\Http\Controllers\AllowanceConfigController;
+use App\Http\Controllers\EmployeeDeductionController;
 
 
 // Public Routes
@@ -36,6 +38,7 @@ Route::get('/dashboard', function () {
 
 // Employee Management
 Route::resource('karyawan', KaryawanController::class);
+Route::resource('employees.deductions', EmployeeDeductionController::class);
 
 // Attendance
 Route::resource('attendance', AttendanceController::class);
@@ -55,10 +58,23 @@ Route::post('holiday-compensation/process', [HolidayCompensationController::clas
 Route::get('holiday-compensation/employee/{employeeId}', [HolidayCompensationController::class, 'employeeCompensationDetail'])->name('holiday-compensation.employee-detail');
 Route::get('holiday-compensation/export', [HolidayCompensationController::class, 'exportReport'])->name('holiday-compensation.export');
 
-// Payroll
-Route::resource('payroll', PayrollController::class);
-Route::post('payroll/{payroll}/finalize', [PayrollController::class, 'finalize'])->name('payroll.finalize');
-Route::get('payroll/{payroll}/print-slip', [PayrollController::class, 'printSlip'])->name('payroll.print-slip');
+// Payroll - CONSOLIDATED ROUTES
+Route::prefix('payroll')->name('payroll.')->group(function () {
+    Route::get('/', [PayrollController::class, 'index'])->name('index');
+    Route::get('create', [PayrollController::class, 'create'])->name('create');
+    Route::post('/', [PayrollController::class, 'store'])->name('store');
+    Route::get('{period}', [PayrollController::class, 'show'])->name('show');
+    Route::post('{period}/finalize', [PayrollController::class, 'finalize'])->name('finalize');
+    Route::delete('{period}', [PayrollController::class, 'destroy'])->name('destroy');
+    Route::get('{period}/slip', [PayrollController::class, 'slip'])->name('slip');
+});
+
+// Allowance Configuration
+Route::get('allowance-config', [AllowanceConfigController::class, 'index'])->name('allowance.index');
+Route::get('allowance-config/{classification}/edit', [AllowanceConfigController::class, 'edit'])->name('allowance.edit');
+Route::put('allowance-config/fixed/{fixedAllowance}', [AllowanceConfigController::class, 'updateFixedAllowance'])->name('allowance.fixed.update');
+Route::put('allowance-config/variable/{variableAllowance}', [AllowanceConfigController::class, 'updateVariableAllowance'])->name('allowance.variable.update');
+Route::post('allowance-config/{classification}/batch-update', [AllowanceConfigController::class, 'batchUpdate'])->name('allowance.batch-update');
 
 // Leave Management
 Route::resource('leave', LeaveController::class);
@@ -70,4 +86,23 @@ Route::resource('work-calendars', WorkCalendarController::class);
 
 // Shift Assignment Management
 Route::resource('shift-assignments', ShiftAssignmentController::class);
+
+// Admin Routes (if needed for other modules)
+Route::middleware(['auth'])->group(function () {
+    Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin'], function () {
+        Route::get('/', 'HomeController@index')->name('home');
+        // Permissions
+        Route::resource('permissions', 'PermissionController');
+        // Roles
+        Route::resource('roles', 'RoleController');
+        // Users
+        Route::resource('users', 'UserController');
+        // Settings
+        Route::resource('settings', 'SettingController');
+        
+        // Attendance
+        Route::delete('attendances/destroy', 'AttendanceController@massDestroy')->name('attendances.massDestroy');
+        Route::resource('attendances', 'AttendanceController');
+    });
+});
 

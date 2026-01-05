@@ -1,176 +1,449 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
 
-    <!-- Page Title -->
-    <div class="d-flex align-items-center mb-4">
-        <div>
-            <h1 class="fw-bold mb-0">Tambah Karyawan</h1>
-            <span class="text-muted">Lengkapi data berikut untuk menambahkan karyawan baru</span>
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-2">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('karyawan.index') }}" class="text-decoration-none">Karyawan</a></li>
+                            <li class="breadcrumb-item active">Tambah Baru</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 fw-bold text-dark mb-0">
+                        <i class="bi bi-person-plus-fill text-primary me-2"></i>Tambah Karyawan Baru
+                    </h1>
+                    <p class="text-muted mt-1 mb-0">Lengkapi formulir berikut dengan data karyawan yang akurat</p>
+                </div>
+                <div>
+                    <a href="{{ route('karyawan.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Error Alert -->
     @if ($errors->any())
-        <div class="alert alert-danger shadow-sm">
-            <h5 class="fw-bold"><i class="bi bi-exclamation-triangle"></i> Ada kesalahan input</h5>
-            <ul class="mb-0 ms-3">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert">
+            <div class="d-flex align-items-start">
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading fw-bold mb-2">Terdapat Kesalahan Input!</h6>
+                    <ul class="mb-0 small">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <!-- Card Form -->
-    <div class="card shadow-lg border-0">
-        <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0"><i class="bi bi-person-plus"></i> Formulir Karyawan Baru</h5>
+    <!-- Main Form -->
+    <form action="{{ route('karyawan.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                
+                <!-- Section 1: Informasi Dasar -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3">
+                                <i class="bi bi-person-circle text-primary fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Informasi Dasar</h5>
+                                <small class="text-muted">Data identitas karyawan</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">PIN <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 @error('pin') is-invalid @enderror"
+                                           name="pin" value="{{ old('pin') }}" placeholder="Masukkan PIN" required>
+                                </div>
+                                <small class="form-text text-muted">PIN untuk sistem absensi</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">NIK <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-card-text"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 @error('nik') is-invalid @enderror"
+                                           name="nik" value="{{ old('nik') }}" placeholder="Nomor Induk Karyawan" required>
+                                </div>
+                                <small class="form-text text-muted">Nomor identitas unik karyawan</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 @error('name') is-invalid @enderror"
+                                           name="name" value="{{ old('name') }}" placeholder="Nama lengkap sesuai KTP" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Informasi Lahir -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 rounded-3 p-2 me-3">
+                                <i class="bi bi-calendar-event text-success fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Informasi Kelahiran</h5>
+                                <small class="text-muted">Data tempat dan tanggal lahir</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tempat Lahir</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0 @error('birth_place') is-invalid @enderror"
+                                           name="birth_place" value="{{ old('birth_place') }}" placeholder="Contoh: Yogyakarta">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tanggal Lahir</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-calendar3"></i>
+                                    </span>
+                                    <input type="date" class="form-control border-start-0 @error('birth_date') is-invalid @enderror"
+                                           name="birth_date" value="{{ old('birth_date') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Informasi Pekerjaan -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info bg-opacity-10 rounded-3 p-2 me-3">
+                                <i class="bi bi-briefcase-fill text-info fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Informasi Pekerjaan</h5>
+                                <small class="text-muted">Detail posisi dan departemen</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Employment Type -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-3">Jenis Karyawan <span class="text-danger">*</span></label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-custom border rounded-3 p-3 h-100">
+                                        <input class="form-check-input" type="radio" name="employment_type" 
+                                               id="monthly" value="monthly" 
+                                               {{ old('employment_type', 'monthly') === 'monthly' ? 'checked' : '' }}>
+                                        <label class="form-check-label w-100 cursor-pointer" for="monthly">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-calendar-month text-primary fs-4 me-2"></i>
+                                                <div>
+                                                    <strong class="d-block">Karyawan Bulanan</strong>
+                                                    <small class="text-muted">Jam kerja reguler 08:00 - 16:00</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-check-custom border rounded-3 p-3 h-100">
+                                        <input class="form-check-input" type="radio" name="employment_type" 
+                                               id="daily" value="daily" 
+                                               {{ old('employment_type') === 'daily' ? 'checked' : '' }}>
+                                        <label class="form-check-label w-100 cursor-pointer" for="daily">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-clock-history text-warning fs-4 me-2"></i>
+                                                <div>
+                                                    <strong class="d-block">Karyawan Harian</strong>
+                                                    <small class="text-muted">Sistem shift (07:00-15:00, 15:00-23:00, 23:00-07:00)</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Posisi <span class="text-danger">*</span></label>
+                                <select class="form-select @error('position_id') is-invalid @enderror"
+                                        name="position_id" required>
+                                    <option value="">Pilih Posisi</option>
+                                    @foreach($positions as $position)
+                                        <option value="{{ $position->id }}" 
+                                            {{ old('position_id') == $position->id ? 'selected' : '' }}>
+                                            {{ $position->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Departemen <span class="text-danger">*</span></label>
+                                <select class="form-select @error('department_id') is-invalid @enderror"
+                                        name="department_id" required>
+                                    <option value="">Pilih Departemen</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->id }}" 
+                                            {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Golongan <span class="text-danger">*</span></label>
+                                <select class="form-select @error('classification_id') is-invalid @enderror"
+                                        name="classification_id" required>
+                                    <option value="">Pilih Golongan</option>
+                                    @foreach($classifications as $classification)
+                                        <option value="{{ $classification->id }}"
+                                            {{ old('classification_id') == $classification->id ? 'selected' : '' }}>
+                                            {{ $classification->name }} ({{ $classification->code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Status Kepegawaian -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-10 rounded-3 p-2 me-3">
+                                <i class="bi bi-bookmark-check-fill text-warning fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Status Kepegawaian</h5>
+                                <small class="text-muted">Status dan tahun bergabung</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+                                <select class="form-select @error('status') is-invalid @enderror" name="status" required>
+                                    <option value="">Pilih Status</option>
+                                    <option value="aktif" {{ old('status') === 'aktif' ? 'selected' : '' }}>
+                                        🟢 Aktif
+                                    </option>
+                                    <option value="kontrak" {{ old('status') === 'kontrak' ? 'selected' : '' }}>
+                                        🟡 Kontrak
+                                    </option>
+                                    <option value="nonaktif" {{ old('status') === 'nonaktif' ? 'selected' : '' }}>
+                                        ⚪ Nonaktif
+                                    </option>
+                                    <option value="resign" {{ old('status') === 'resign' ? 'selected' : '' }}>
+                                        🔴 Resign
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tahun Bergabung</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-calendar-check"></i>
+                                    </span>
+                                    <input type="number" class="form-control border-start-0 @error('join_year') is-invalid @enderror"
+                                           name="join_year" value="{{ old('join_year', date('Y')) }}" 
+                                           placeholder="Contoh: 2024" min="1990" max="{{ date('Y') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Penghasilan -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-danger bg-opacity-10 rounded-3 p-2 me-3">
+                                <i class="bi bi-cash-stack text-danger fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Informasi Penghasilan</h5>
+                                <small class="text-muted">Upah minimum karyawan</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <label class="form-label fw-semibold">UMK (Upah Minimum Kabupaten/Kota)</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">Rp</span>
+                            <input type="number" step="0.01" class="form-control @error('umk') is-invalid @enderror"
+                                   name="umk" value="{{ old('umk') }}" placeholder="0">
+                        </div>
+                        <small class="form-text text-muted">Masukkan nilai UMK dalam Rupiah</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                
+                <!-- Section 6: Foto Profil -->
+                <div class="card border-0 shadow-sm mb-4 " style="top: 20px;">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-3 p-2 me-3">
+                                <i class="bi bi-camera-fill text-secondary fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Foto Profil</h5>
+                                <small class="text-muted">Upload foto karyawan</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <div class="photo-preview mx-auto mb-3" style="width: 200px; height: 200px;">
+                                <img id="preview" src="https://via.placeholder.com/200x200?text=Preview+Foto" 
+                                     class="img-fluid rounded-circle border border-3 border-light shadow" 
+                                     alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+                        <input type="file" class="form-control @error('photo') is-invalid @enderror"
+                               id="photoInput" name="photo" accept="image/*" onchange="previewImage(event)">
+                        <small class="form-text text-muted d-block mt-2">
+                            <i class="bi bi-info-circle"></i> Format: JPG, PNG, GIF (Max 2MB)
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle-fill me-2"></i> Simpan Data Karyawan
+                            </button>
+                            <a href="{{ route('karyawan.index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i> Batal
+                            </a>
+                        </div>
+                        <hr class="my-3">
+                        <small class="text-muted d-block text-center">
+                            <i class="bi bi-shield-check"></i> Data akan tersimpan dengan aman
+                        </small>
+                    </div>
+                </div>
+
+            </div>
         </div>
+    </form>
 
-        <form action="{{ route('karyawan.store') }}" method="POST" class="p-4">
-            @csrf
-
-            <!-- Basic Info -->
-            <h5 class="fw-bold mb-3 text-primary">1. Informasi Dasar</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">PIN</label>
-                    <input type="text" class="form-control @error('pin') is-invalid @enderror"
-                           name="pin" value="{{ old('pin') }}" placeholder="Masukkan PIN" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">NIK</label>
-                    <input type="text" class="form-control @error('nik') is-invalid @enderror"
-                           name="nik" value="{{ old('nik') }}" placeholder="Nomor Induk Karyawan" required>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Nama Lengkap</label>
-                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                       name="name" value="{{ old('name') }}" placeholder="Nama lengkap..." required>
-            </div>
-
-            <!-- Birth Info -->
-            <h5 class="fw-bold text-primary mt-4 mb-3">2. Informasi Lahir</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Tempat Lahir</label>
-                    <input type="text" class="form-control @error('birth_place') is-invalid @enderror"
-                           name="birth_place" value="{{ old('birth_place') }}" placeholder="Contoh: Surabaya">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Tanggal Lahir</label>
-                    <input type="date" class="form-control @error('birth_date') is-invalid @enderror"
-                           name="birth_date" value="{{ old('birth_date') }}">
-                </div>
-            </div>
-
-            <!-- Job Info -->
-            <h5 class="fw-bold text-primary mt-4 mb-3">3. Informasi Pekerjaan</h5>
-            
-            <!-- Employment Type -->
-            <div class="mb-3">
-                <label class="form-label">Jenis Karyawan</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="employment_type" 
-                           id="monthly" value="monthly" 
-                           {{ old('employment_type', 'monthly') === 'monthly' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="monthly">
-                        <strong>Karyawan Bulanan</strong> - Jam kerja 08:00 - 16:00
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="employment_type" 
-                           id="daily" value="daily" 
-                           {{ old('employment_type') === 'daily' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="daily">
-                        <strong>Karyawan Harian</strong> - Tiga shift (07:00-15:00, 15:00-23:00, 23:00-07:00)
-                    </label>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Posisi</label>
-                    <select class="form-select @error('position_id') is-invalid @enderror"
-                            name="position_id" required>
-                        <option value="">Pilih Posisi</option>
-                        @foreach($positions as $position)
-                            <option value="{{ $position->id }}" 
-                                {{ old('position_id') == $position->id ? 'selected' : '' }}>
-                                {{ $position->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Departemen</label>
-                    <select class="form-select @error('department_id') is-invalid @enderror"
-                            name="department_id" required>
-                        <option value="">Pilih Departemen</option>
-                        @foreach($departments as $department)
-                            <option value="{{ $department->id }}" 
-                                {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                                {{ $department->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <!-- Employment Status -->
-            <h5 class="fw-bold text-primary mt-4 mb-3">4. Status Kepegawaian</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Status</label>
-                    <select class="form-select @error('status') is-invalid @enderror" name="status" required>
-                        <option value="">Pilih Status</option>
-                        <option value="aktif" {{ old('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                        <option value="kontrak" {{ old('status') === 'kontrak' ? 'selected' : '' }}>Kontrak</option>
-                        <option value="nonaktif" {{ old('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                        <option value="resign" {{ old('status') === 'resign' ? 'selected' : '' }}>Resign</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Tahun Bergabung</label>
-                    <input type="number" class="form-control @error('join_year') is-invalid @enderror"
-                           name="join_year" value="{{ old('join_year') }}" placeholder="Contoh: 2024">
-                </div>
-            </div>
-
-            <!-- Salary -->
-            <h5 class="fw-bold text-primary mt-4 mb-3">5. Penghasilan</h5>
-            <div class="mb-3">
-                <label class="form-label">UMK</label>
-                <input type="number" step="0.01" class="form-control @error('umk') is-invalid @enderror"
-                       name="umk" value="{{ old('umk') }}" placeholder="Masukkan UMK">
-            </div>
-
-            <!-- Photo -->
-            <h5 class="fw-bold text-primary mt-4 mb-3">6. Foto Profil</h5>
-            <div class="mb-3">
-                <label class="form-label">Foto Karyawan</label>
-                <input type="file" class="form-control @error('photo') is-invalid @enderror"
-                       name="photo" accept="image/*" placeholder="Upload foto profil">
-                <small class="text-muted">Format: JPG, PNG, GIF (Max 2MB)</small>
-            </div>
-
-            <!-- Buttons -->
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-check-circle"></i> Simpan
-                </button>
-                <a href="{{ route('karyawan.index') }}" class="btn btn-secondary px-4">
-                    <i class="bi bi-arrow-left"></i> Batal
-                </a>
-            </div>
-
-        </form>
-    </div>
 </div>
+
+<style>
+.form-check-custom {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.form-check-custom:hover {
+    background-color: #f8f9fa;
+    border-color: #0d6efd !important;
+}
+
+.form-check-custom input:checked ~ label {
+    color: #0d6efd;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.input-group-text {
+    border-right: 0;
+}
+
+.form-control:focus ~ .input-group-text {
+    border-color: #86b7fe;
+}
+
+.photo-preview {
+    position: relative;
+    overflow: hidden;
+}
+
+.photo-preview img {
+    transition: transform 0.3s ease;
+}
+
+.photo-preview:hover img {
+    transform: scale(1.05);
+}
+</style>
+
+<script>
+function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 @endsection

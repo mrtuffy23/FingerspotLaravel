@@ -114,7 +114,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-12 mb-3" id="leave_info_container" style="display: none;">
+                <div class="col-md-12 mb-3 d-none" id="leave_info_container">
                     <div class="alert alert-info border-info bg-info bg-opacity-10" id="leave_info_box">
                         <h6 class="fw-bold mb-2">
                             <i class="bi bi-calendar-x me-2"></i> Informasi Cuti/Izin Terdeteksi

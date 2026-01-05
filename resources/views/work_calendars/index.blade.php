@@ -2,12 +2,16 @@
 
 @section('content')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/work-calendar.css') }}">
+@endpush
+
 <div class="calendar-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 style="margin: 0;">{{ $monthName }} {{ $year }}</h2>
+            <h2 class="mb-0">{{ $monthName }} {{ $year }}</h2>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div class="d-flex gap-2">
             <a href="{{ route('work-calendars.index', ['month' => $prevMonth, 'year' => $prevYear]) }}" class="btn btn-sm btn-secondary">
                 ← Bulan Lalu
             </a>
@@ -28,7 +32,6 @@
     @endif
 
     <div class="calendar">
-        <!-- Day headers -->
         <div class="calendar-day-header">Minggu</div>
         <div class="calendar-day-header">Senin</div>
         <div class="calendar-day-header">Selasa</div>
@@ -37,7 +40,6 @@
         <div class="calendar-day-header">Jumat</div>
         <div class="calendar-day-header">Sabtu</div>
 
-        <!-- Days of month -->
         @foreach($days as $day)
             @php
                 $dateStr = $day['date']->format('Y-m-d');
@@ -58,28 +60,20 @@
                                 'workday' => 'Hari Kerja'
                             ][$holiday->type] ?? $holiday->type;
                         @endphp
-                        <span class="holiday-badge">
-                            {{ $typeLabel }}
-                        </span>
-                        <div style="font-size: 11px; color: #666; margin: 4px 0; margin-top: auto;">
-                            {{ $holiday->description }}
-                        </div>
-                        <form action="{{ route('work-calendars.destroy', $holiday->id) }}" method="POST" style="margin-top: 8px;">
+                        <span class="holiday-badge">{{ $typeLabel }}</span>
+                        <div class="small text-muted mt-1">{{ $holiday->description }}</div>
+                        <form action="{{ route('work-calendars.destroy', $holiday->id) }}" method="POST" class="mt-2">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger btn-set-holiday" onclick="return confirm('Hapus hari libur ini?')">
-                                Hapus
-                            </button>
+                            <button type="submit" class="btn btn-sm btn-danger btn-set-holiday" onclick="return confirm('Hapus hari libur ini?')">Hapus</button>
                         </form>
                     @else
-                        <form action="{{ route('work-calendars.store') }}" method="POST" style="margin-top: auto;">
+                        <form action="{{ route('work-calendars.store') }}" method="POST" class="mt-auto">
                             @csrf
                             <input type="hidden" name="date" value="{{ $dateStr }}">
                             <input type="hidden" name="type" value="national_holiday">
                             <input type="hidden" name="description" value="Hari Libur">
-                            <button type="submit" class="btn btn-sm btn-primary btn-set-holiday">
-                                Set Libur
-                            </button>
+                            <button type="submit" class="btn btn-sm btn-primary btn-set-holiday">Set Libur</button>
                         </form>
                     @endif
                 @endif
@@ -88,15 +82,9 @@
     </div>
 
     <!-- Legend -->
-    <div style="display: flex; gap: 20px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 20px; height: 20px; background: #dc3545; border-radius: 3px;"></div>
-            <span>Hari Libur</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 20px; height: 20px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 3px;"></div>
-            <span>Bulan Lain</span>
-        </div>
+    <div class="calendar-legend mt-3 d-flex align-items-center gap-3">
+        <span class="badge bg-danger">Hari Libur</span>
+        <span class="badge bg-secondary">Bulan Lain</span>
     </div>
 </div>
 
