@@ -574,6 +574,18 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('absen.*') ? 'active' : '' }}" href="{{ route('absen.import') }}">
+                    <i class="bi bi-upload"></i>
+                    <span>Import Absensi</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('absen.process*') ? 'active' : '' }}" href="{{ route('absen.process') }}">
+                    <i class="bi bi-cogs"></i>
+                    <span>Proses Absensi</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active' : '' }}" href="/payroll">
                     <i class="bi bi-cash-stack"></i>
                     <span>Penggajian</span>
@@ -617,6 +629,12 @@
                 <a class="nav-link {{ request()->routeIs('holiday-compensation.*') ? 'active' : '' }}" href="/holiday-compensation/report">
                     <i class="bi bi-gift"></i>
                     <span>Kompensasi</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('points.*') ? 'active' : '' }}" href="/points">
+                    <i class="bi bi-star"></i>
+                    <span>Poin Karyawan</span>
                 </a>
             </li>
         </ul>

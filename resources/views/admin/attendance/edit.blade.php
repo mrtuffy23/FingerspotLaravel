@@ -130,16 +130,20 @@
                     <label class="form-label fw-semibold">Status</label>
                     <select class="form-select @error('status') is-invalid @enderror" 
                             id="status"
-                            name="status" required>
+                            name="status" 
+                            onchange="updatePointDelta()"
+                            required>
                         <option value="present" {{ old('status', $attendance->status) === 'present' ? 'selected' : '' }}>Hadir</option>
                         <option value="late" {{ old('status', $attendance->status) === 'late' ? 'selected' : '' }}>Telat Masuk</option>
-                        <option value="absent" {{ old('status', $attendance->status) === 'absent' ? 'selected' : '' }}>Alpa</option>
-                        <option value="sick" {{ old('status', $attendance->status) === 'sick' ? 'selected' : '' }}>Sakit</option>
-                        <option value="on_leave" {{ old('status', $attendance->status) === 'on_leave' ? 'selected' : '' }}>Cuti</option>
+                        <option value="alpha" {{ old('status', $attendance->status) === 'alpha' ? 'selected' : '' }}>Alpa</option>
+                        <option value="sakit" {{ old('status', $attendance->status) === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                        <option value="cuti" {{ old('status', $attendance->status) === 'cuti' ? 'selected' : '' }}>Cuti</option>
                         <option value="early_leave" {{ old('status', $attendance->status) === 'early_leave' ? 'selected' : '' }}>Pulang Cepat</option>
-                        <option value="accident" {{ old('status', $attendance->status) === 'accident' ? 'selected' : '' }}>Kecelakaan</option>
-                        <option value="permission" {{ old('status', $attendance->status) === 'permission' ? 'selected' : '' }}>Izin</option>
+                        <option value="kecelakaan" {{ old('status', $attendance->status) === 'kecelakaan' ? 'selected' : '' }}>Kecelakaan</option>
+                        <option value="izin" {{ old('status', $attendance->status) === 'izin' ? 'selected' : '' }}>Izin</option>
                     </select>
+                    <!-- Hidden field untuk point_delta -->
+                    <input type="hidden" id="point_delta" name="point_delta" value="{{ old('point_delta', $attendance->point_delta) }}">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-semibold">
@@ -153,6 +157,22 @@
                 </div>
             </div>
 
+            <!-- POINT DELTA INFO -->
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <div class="alert alert-warning border-warning bg-warning bg-opacity-10" id="point_delta_info">
+                        <h6 class="fw-bold mb-2">
+                            <i class="bi bi-diagram-3 me-2"></i> Perubahan Poin
+                        </h6>
+                        <div id="point_delta_content">
+                            <p class="mb-0"><strong>Status Saat Ini:</strong> <span id="current_status_label">-</span></p>
+                            <p class="mb-0"><strong>Perubahan Poin:</strong> <span id="point_delta_badge" class="badge bg-danger">0</span></p>
+                            <small class="text-muted d-block mt-2">Poin akan otomatis diperbarui sesuai status yang dipilih</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- NOTES -->
             <div class="mb-3">
                 <label class="form-label fw-semibold">Catatan</label>
@@ -161,7 +181,7 @@
 
             <!-- ACTION BUTTONS -->
             <div class="d-flex gap-2 mt-3">
-                <button type="submit" class="btn btn-primary px-4">
+                <button type="submit" class="btn btn-primary px-4" onclick="debugForm()">
                     <i class="bi bi-save me-1"></i> Update Kehadiran
                 </button>
                 <a href="{{ route('attendance.index') }}" class="btn btn-outline-secondary px-4">
@@ -174,6 +194,30 @@
 </div>
 
 <script>
+// Point mapping from config/discipline.php
+const pointMapping = {
+    'present': 0,
+    'late': -5,
+    'alpha': -40,
+    'sakit': -5,
+    'cuti': 0,
+    'early_leave': -10,
+    'kecelakaan': -1,
+    'izin': -20
+};
+
+// Status labels
+const statusLabels = {
+    'present': 'Hadir',
+    'late': 'Telat Masuk',
+    'alpha': 'Alpa',
+    'sakit': 'Sakit',
+    'cuti': 'Cuti',
+    'early_leave': 'Pulang Cepat',
+    'kecelakaan': 'Kecelakaan',
+    'izin': 'Izin'
+};
+
 // Employee schedule data
 const employeeScheduleMap = {
     @foreach($employees as $emp)
@@ -184,6 +228,33 @@ const employeeScheduleMap = {
         },
     @endforeach
 };
+
+function updatePointDelta() {
+    const statusSelect = document.getElementById('status');
+    const pointDeltaInput = document.getElementById('point_delta');
+    const currentStatusLabel = document.getElementById('current_status_label');
+    const pointDeltaBadge = document.getElementById('point_delta_badge');
+    
+    const status = statusSelect.value;
+    const pointDelta = pointMapping[status] || 0;
+    
+    // Update hidden field
+    pointDeltaInput.value = pointDelta;
+    
+    // Update display
+    currentStatusLabel.textContent = statusLabels[status] || status;
+    pointDeltaBadge.textContent = pointDelta;
+    
+    // Update badge color based on point value
+    pointDeltaBadge.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+    if (pointDelta < 0) {
+        pointDeltaBadge.classList.add('bg-danger');
+    } else if (pointDelta > 0) {
+        pointDeltaBadge.classList.add('bg-success');
+    } else {
+        pointDeltaBadge.classList.add('bg-warning');
+    }
+}
 
 function updateScheduleTime() {
     const employeeSelect = document.getElementById('employee_id');
@@ -282,14 +353,29 @@ function calculateWorkHours() {
                     statusSelect.value = 'present';
                     statusSelect.style.borderColor = '';
                 }
+                updatePointDelta(); // Update point delta after status change
             }
         }
     }
 }
 
-// Initialize schedule time on page load
+// Initialize schedule time and point delta on page load
 document.addEventListener('DOMContentLoaded', function() {
     updateScheduleTime();
+    updatePointDelta();
 });
+
+function debugForm() {
+    const statusSelect = document.getElementById('status');
+    const pointDeltaInput = document.getElementById('point_delta');
+    const pointDelta = pointMapping[statusSelect.value];
+    
+    console.log('Form Debug:');
+    console.log('Status:', statusSelect.value);
+    console.log('Point Mapping Value:', pointDelta);
+    console.log('Point Delta Input Value:', pointDeltaInput.value);
+    console.log('Point Delta Input Name:', pointDeltaInput.name);
+    console.log('---');
+}
 </script>
 @endsection

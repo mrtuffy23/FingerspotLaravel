@@ -76,10 +76,13 @@
                             <span class="badge bg-warning text-dark">Harian</span> - 3 Shift (07:00-15:00, 15:00-23:00, 23:00-07:00)
                         @endif
                     </p>
-                    <p><strong>Posisi:</strong> {{ $employee->position->name ?? '-' }}</p>
-                    <p><strong>Departemen:</strong> {{ $employee->department->name ?? '-' }}</p>
+                    <p><strong>Posisi:</strong> {{ $employee->position?->name ?? '-' }}</p>
+                    <p><strong>Departemen:</strong> {{ $employee->department?->name ?? '-' }}</p>
+                    <p><strong>Divisi:</strong> {{ $employee->division?->name ?? '-' }}</p>
+                    <p><strong>Sub Bagian:</strong> {{ $employee->subdivision?->nama ?? '-' }}</p>
+                    <p><strong>Golongan:</strong> {{ $employee->classification?->name ?? '-' }} ({{ $employee->classification?->code ?? '-' }})</p>
                     <p><strong>Status:</strong> 
-                        <span class="badge bg-{{ $employee->status === 'active' ? 'success' : 'secondary' }}">
+                        <span class="badge bg-{{ $employee->status === 'aktif' ? 'success' : 'secondary' }}">
                             {{ ucfirst($employee->status) }}
                         </span>
                     </p>

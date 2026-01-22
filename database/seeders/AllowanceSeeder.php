@@ -16,57 +16,57 @@ class AllowanceSeeder extends Seeder
         $allowanceStructure = [
             'I-A' => [
                 'fixed' => [
-                    'TJ' => 500000,    // Tunjangan Jabatan
-                    'TMK' => 300000,   // Tunjangan Masa Kerja
+                    'TJ' => 0,    // Tunjangan Jabatan
+                    'TMK' => 0,   // Tunjangan Masa Kerja
                 ],
                 'variable' => [
-                    'PP' => 50000,     // Premi Prestasi/hari
-                    'PK' => 30000,     // Premi Kehadiran/hari
-                    'UM' => 25000,     // Uang Makan/hari
+                    'PP' => 0,     // Premi Prestasi/hari
+                    'PK' => 0,     // Premi Kehadiran/hari
+                    'UM' => 10000,     // Uang Makan/hari
                 ]
             ],
             'I-B' => [
                 'fixed' => [
-                    'TJ' => 400000,
-                    'TMK' => 250000,
+                    'TJ' => 0,
+                    'TMK' => 0,
                 ],
                 'variable' => [
-                    'PP' => 45000,
-                    'PK' => 27000,
-                    'UM' => 25000,
+                    'PP' => 0,
+                    'PK' => 0,
+                    'UM' => 10000,
                 ]
             ],
             'II-A1' => [
                 'fixed' => [
-                    'TJ' => 300000,
-                    'TMK' => 200000,
+                    'TJ' => 0,
+                    'TMK' => 25000,
                 ],
                 'variable' => [
-                    'PP' => 40000,
-                    'PK' => 24000,
-                    'UM' => 25000,
+                    'PP' => 1000,
+                    'PK' => 2000,
+                    'UM' => 10000,
                 ]
             ],
             'II-A' => [
                 'fixed' => [
-                    'TJ' => 250000,
-                    'TMK' => 150000,
+                    'TJ' => 50000,
+                    'TMK' => 25000,
                 ],
                 'variable' => [
-                    'PP' => 35000,
-                    'PK' => 21000,
-                    'UM' => 25000,
+                    'PP' => 1000,
+                    'PK' => 2000,
+                    'UM' => 10000,
                 ]
             ],
             'II-B' => [
                 'fixed' => [
-                    'TJ' => 200000,
-                    'TMK' => 100000,
+                    'TJ' => 150000,
+                    'TMK' => 25000,
                 ],
                 'variable' => [
-                    'PP' => 30000,
-                    'PK' => 18000,
-                    'UM' => 25000,
+                    'PP' => 2000,
+                    'PK' => 3000,
+                    'UM' => 10000,
                 ]
             ],
         ];

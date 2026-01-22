@@ -149,12 +149,12 @@
                     <option value="">Pilih Status</option>
                     <option value="present" {{ old('status') === 'present' ? 'selected' : '' }}>Hadir</option>
                     <option value="late"   {{ old('status') === 'late' ? 'selected' : '' }}>Telat Masuk</option>
-                    <option value="absent" {{ old('status') === 'absent' ? 'selected' : '' }}>Alpa</option>
-                    <option value="sick"   {{ old('status') === 'sick' ? 'selected' : '' }}>Sakit</option>
-                    <option value="on_leave"  {{ old('status') === 'on_leave' ? 'selected' : '' }}>Cuti</option>
+                    <option value="alpha" {{ old('status') === 'alpha' ? 'selected' : '' }}>Alpa</option>
+                    <option value="sakit"   {{ old('status') === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                    <option value="cuti"  {{ old('status') === 'cuti' ? 'selected' : '' }}>Cuti</option>
                     <option value="early_leave" {{ old('status') === 'early_leave' ? 'selected' : '' }}>Pulang Cepat</option>
-                    <option value="accident" {{ old('status') === 'accident' ? 'selected' : '' }}>Kecelakaan</option>
-                    <option value="permission" {{ old('status') === 'permission' ? 'selected' : '' }}>Izin</option>
+                    <option value="kecelakaan" {{ old('status') === 'kecelakaan' ? 'selected' : '' }}>Kecelakaan</option>
+                    <option value="izin" {{ old('status') === 'izin' ? 'selected' : '' }}>Izin</option>
                 </select>
             </div>
             <div class="col-md-6 mb-3">

@@ -8,7 +8,7 @@
         <div class="card-body d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
                 @if($employee->photo)
-                    <img src="{{ asset($employee->photo) }}"
+                    <img src="{{ asset('storage/' . $employee->photo) }}"
                          class="rounded-circle shadow-sm"
                          style="width:72px;height:72px;object-fit:cover">
                 @else
@@ -75,6 +75,18 @@
                             {{ $employee->employment_type === 'monthly' ? 'Bulanan' : 'Harian' }}
                         </span>
                     </div>
+
+                    <div class="small text-muted">Departemen</div>
+                    <div class="fw-semibold mb-2">{{ $employee->department->name ?? '-' }}</div>
+
+                    <div class="small text-muted">Divisi</div>
+                    <div class="fw-semibold mb-2">{{ $employee->division->name ?? '-' }}</div>
+
+                    <div class="small text-muted">Jabatan</div>
+                    <div class="fw-semibold mb-2">{{ $employee->position->name ?? '-' }}</div>
+
+                    <div class="small text-muted">Sub Bagian</div>
+                    <div class="fw-semibold mb-2">{{ $employee->subDivision->nama ?? '-' }}</div>
 
                     <div class="small text-muted">Golongan</div>
                     <div class="fw-semibold mb-2">

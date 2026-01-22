@@ -151,6 +151,14 @@
                             <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
                         </div>
 
+                        <!-- Employee Name -->
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label fw-semibold small">
+                                <i class="bi bi-person-fill me-1"></i>Nama Karyawan
+                            </label>
+                            <input type="text" class="form-control" name="employee_name" placeholder="Cari nama..." value="{{ request('employee_name') }}">
+                        </div>
+
                         <!-- Employee -->
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label fw-semibold small">
@@ -200,6 +208,23 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div id="bulkActionsBar" class="card-body bg-light border-bottom" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">
+                    <strong id="selectedCount">0</strong> item terpilih
+                </span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+                        <i class="bi bi-x-circle me-1"></i>Batalkan Pilihan
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()">
+                        <i class="bi bi-trash me-1"></i>Hapus Terpilih
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -352,6 +377,14 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
+                                <!-- Hidden Delete Form -->
+                                <form id="delete-form-{{ $attendance->id }}" 
+                                      action="{{ route('attendance.destroy', $attendance) }}" 
+                                      method="POST" 
+                                      style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
                             </td>
                         </tr>
                         @empty
@@ -520,21 +553,89 @@
 @push('scripts')
 <script>
 // Select All Checkbox
-document.getElementById('selectAll')?.addEventListener('change', function() {
+const selectAllCheckbox = document.getElementById('selectAll');
+const bulkActionsBar = document.getElementById('bulkActionsBar');
+const selectedCountSpan = document.getElementById('selectedCount');
+
+function updateBulkActionsBar() {
+    const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+    const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+    const count = checked.length;
+    
+    selectedCountSpan.textContent = count;
+    bulkActionsBar.style.display = count > 0 ? 'block' : 'none';
+}
+
+selectAllCheckbox?.addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
     checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    updateBulkActionsBar();
+});
+
+// Add listener to all checkboxes
+document.querySelectorAll('tbody input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        updateBulkActionsBar();
+        // Update selectAll checkbox state
+        const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+        const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+        selectAllCheckbox.checked = checkboxes.length > 0 && checkboxes.length === checked.length;
+    });
 });
 
 // Initialize Tooltips
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
-// Confirm Delete
+// Confirm Delete Single
 function confirmDelete(id) {
     if (confirm('Apakah Anda yakin ingin menghapus data kehadiran ini?')) {
-        // Implement delete logic
-        console.log('Delete attendance:', id);
+        document.getElementById('delete-form-' + id).submit();
     }
+}
+
+// Bulk Delete
+function bulkDelete() {
+    const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (ids.length === 0) {
+        alert('Pilih minimal 1 item untuk dihapus');
+        return;
+    }
+    
+    if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} data kehadiran ini?\n\nTindakan ini tidak dapat dibatalkan.`)) {
+        // Create and submit form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("attendance.bulk-delete") }}';
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfInput);
+        
+        // Add IDs
+        ids.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Clear Selection
+function clearSelection() {
+    document.querySelectorAll('tbody input[type="checkbox"]').forEach(cb => cb.checked = false);
+    selectAllCheckbox.checked = false;
+    updateBulkActionsBar();
 }
 </script>
 @endpush

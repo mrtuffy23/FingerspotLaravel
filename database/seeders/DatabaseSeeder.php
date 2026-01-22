@@ -12,15 +12,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            UserSeeder::class,
             ClassificationSeeder::class,
             AllowanceSeeder::class,
-            DeductionSeeder::class,
             ShiftSeeder::class,
             WorkCalendarSeeder::class,
-            PayrollPeriodSeeder::class,
             ShiftAssignmentSeeder::class,
-            AttendanceSeeder::class,
-            PayrollSeeder::class,
+            DivisionSeeder::class,
+            DepartmentSeeder::class,
+            PositionSeeder::class,
+            SubDivisionSeeder::class,
+            EmployeeSeeder::class,
         ]);
     }
 }

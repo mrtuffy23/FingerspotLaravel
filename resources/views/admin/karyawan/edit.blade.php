@@ -201,10 +201,40 @@
 
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Posisi <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Divisi/Bagian <span class="text-danger">*</span></label>
+                                <select class="form-select @error('division_id') is-invalid @enderror"
+                                        name="division_id" id="divisionSelect" required>
+                                    <option value="">Pilih Divisi/Bagian</option>
+                                    @foreach($divisions as $division)
+                                        <option value="{{ $division->id }}" 
+                                            {{ old('division_id', $employee->division_id) == $division->id ? 'selected' : '' }}>
+                                            {{ $division->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Sub Bagian <span class="text-danger">*</span></label>
+                                <select class="form-select @error('subdivision_id') is-invalid @enderror"
+                                        name="subdivision_id" id="subdivisionSelect" required>
+                                    <option value="">Pilih Sub Bagian</option>
+                                    @foreach($subDivisions as $subdivision)
+                                        <option value="{{ $subdivision->id }}" 
+                                            {{ old('subdivision_id', $employee->subdivision_id) == $subdivision->id ? 'selected' : '' }}>
+                                            {{ $subdivision->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Jabatan <span class="text-danger">*</span></label>
                                 <select class="form-select @error('position_id') is-invalid @enderror"
                                         name="position_id" required>
-                                    <option value="">Pilih Posisi</option>
+                                    <option value="">Pilih Jabatan</option>
                                     @foreach($positions as $position)
                                         <option value="{{ $position->id }}" 
                                             {{ old('position_id', $employee->position_id) == $position->id ? 'selected' : '' }}>
@@ -340,7 +370,7 @@
                         <div class="mb-3">
                             <div class="photo-preview mx-auto mb-3" style="width: 200px; height: 200px;">
                                 @if($employee->photo)
-                                    <img id="preview" src="{{ asset($employee->photo) }}" 
+                                    <img id="preview" src="{{ asset('storage/' . $employee->photo) }}" 
                                          class="img-fluid rounded-circle border border-3 border-light shadow" 
                                          alt="Current Photo" style="width: 100%; height: 100%; object-fit: cover;">
                                 @else

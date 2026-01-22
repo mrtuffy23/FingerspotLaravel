@@ -98,8 +98,8 @@
                                     <span class="input-group-text bg-light border-end-0">
                                         <i class="bi bi-person"></i>
                                     </span>
-                                    <input type="text" class="form-control border-start-0 @error('name') is-invalid @enderror"
-                                           name="name" value="{{ old('name') }}" placeholder="Nama lengkap sesuai KTP" required>
+                                    <input type="text" class="form-control border-start-0 @error('employee_name') is-invalid @enderror"
+                                           name="employee_name" value="{{ old('employee_name') }}" placeholder="Nama lengkap sesuai KTP" required>
                                 </div>
                             </div>
                         </div>
@@ -199,21 +199,7 @@
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">Posisi <span class="text-danger">*</span></label>
-                                <select class="form-select @error('position_id') is-invalid @enderror"
-                                        name="position_id" required>
-                                    <option value="">Pilih Posisi</option>
-                                    @foreach($positions as $position)
-                                        <option value="{{ $position->id }}" 
-                                            {{ old('position_id') == $position->id ? 'selected' : '' }}>
-                                            {{ $position->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold">Departemen <span class="text-danger">*</span></label>
                                 <select class="form-select @error('department_id') is-invalid @enderror"
                                         name="department_id" required>
@@ -226,8 +212,50 @@
                                     @endforeach
                                 </select>
                             </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Divisi/Bagian <span class="text-danger">*</span></label>
+                                <select class="form-select @error('division_id') is-invalid @enderror"
+                                        name="division_id" required>
+                                    <option value="">Pilih Divisi/Bagian</option>
+                                    @foreach($divisions as $division)
+                                        <option value="{{ $division->id }}" 
+                                            {{ old('division_id') == $division->id ? 'selected' : '' }}>
+                                            {{ $division->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Sub Bagian</label>
+                                <select class="form-select @error('subdivision_id') is-invalid @enderror"
+                                        name="subdivision_id">
+                                    <option value="">Pilih Sub Bagian</option>
+                                    @foreach($subDivisions as $subDivision)
+                                        <option value="{{ $subDivision->id }}" 
+                                            {{ old('subdivision_id') == $subDivision->id ? 'selected' : '' }}>
+                                            {{ $subDivision->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Jabatan <span class="text-danger">*</span></label>
+                                <select class="form-select @error('position_id') is-invalid @enderror"
+                                        name="position_id" required>
+                                    <option value="">Pilih Jabatan</option>
+                                    @foreach($positions as $position)
+                                        <option value="{{ $position->id }}" 
+                                            {{ old('position_id') == $position->id ? 'selected' : '' }}>
+                                            {{ $position->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold">Golongan <span class="text-danger">*</span></label>
                                 <select class="form-select @error('classification_id') is-invalid @enderror"
                                         name="classification_id" required>
@@ -243,7 +271,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Section 4: Status Kepegawaian -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white border-0 py-3">

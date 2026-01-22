@@ -13,3 +13,9 @@ storage/
 *~
 .phpunit.result.cache
 /bootstrap/cache/*.php
+/database/seeders/EmployeeSeeder.php
+/database/seeders/DepartmentSeeder.php
+/database/seeders/DivisionSeeder.php
+/database/seeders/PositionSeeder.php
+/database/seeders/SubdivisionSeeder.php
+

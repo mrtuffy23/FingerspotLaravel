@@ -25,6 +25,13 @@ class AttendanceController extends Controller
             $query->whereBetween('date', [$request->get('start_date'), $request->get('end_date')]);
         }
 
+        // Filter by employee name if provided
+        if ($request->has('employee_name') && !empty($request->get('employee_name'))) {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->get('employee_name') . '%');
+            });
+        }
+
         // Filter by employee if provided
         if ($request->has('employee_id') && !empty($request->get('employee_id'))) {
             $query->where('employee_id', $request->get('employee_id'));
@@ -56,7 +63,7 @@ class AttendanceController extends Controller
             'last_out' => 'nullable|regex:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/',
             'work_hours' => 'nullable|numeric',
             'compensated_hours' => 'nullable|numeric',
-            'status' => 'required|in:present,absent,late,sick,on_leave,early_leave,accident,holiday,permission,out_permission',
+            'status' => 'required|in:present,alpha,late,sakit,cuti,early_leave,kecelakaan,izin,holiday,out_permission',
             'point_delta' => 'nullable|integer',
             'notes' => 'nullable|string',
         ]);
@@ -99,6 +106,11 @@ class AttendanceController extends Controller
 
     public function update(Request $request, $id)
     {
+        \Illuminate\Support\Facades\Log::info("Attendance.update called", [
+            'request_data' => $request->all(),
+            'attendance_id' => $id,
+        ]);
+
         $attendance = Attendance::findOrFail($id);
 
         $validated = $request->validate([
@@ -108,9 +120,13 @@ class AttendanceController extends Controller
             'last_out' => 'nullable|regex:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/',
             'work_hours' => 'nullable|numeric',
             'compensated_hours' => 'nullable|numeric',
-            'status' => 'required|in:present,absent,late,sick,on_leave,early_leave,accident,holiday,permission,out_permission',
+            'status' => 'required|in:present,alpha,late,sakit,cuti,early_leave,kecelakaan,izin,holiday,out_permission',
             'point_delta' => 'nullable|integer',
             'notes' => 'nullable|string',
+        ]);
+
+        \Illuminate\Support\Facades\Log::info("Attendance.update validated", [
+            'validated_data' => $validated,
         ]);
 
         // Set approved_by dan approved_at jika status sudah confirmed
@@ -120,6 +136,10 @@ class AttendanceController extends Controller
         }
 
         $attendance->update($validated);
+
+        \Illuminate\Support\Facades\Log::info("Attendance.update complete", [
+            'attendance' => $attendance->toArray(),
+        ]);
 
         // Calculate work hours automatically for monthly employees
         $employee = $attendance->employee;
@@ -216,6 +236,43 @@ class AttendanceController extends Controller
             'reason' => $leave->reason ?? '-',
             'compensation' => $compensation,
         ]);
+    }
+
+    /**
+     * Delete attendance record
+     */
+    public function destroy(Attendance $attendance)
+    {
+        try {
+            $attendance->delete();
+            return redirect()->route('attendance.index')
+                ->with('success', 'Data kehadiran berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->route('attendance.index')
+                ->with('error', 'Gagal menghapus data kehadiran: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk delete attendance records
+     */
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->get('ids', []);
+
+        if (empty($ids)) {
+            return redirect()->route('attendance.index')
+                ->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
+        }
+
+        try {
+            $count = Attendance::whereIn('id', $ids)->delete();
+            return redirect()->route('attendance.index')
+                ->with('success', "{$count} data kehadiran berhasil dihapus.");
+        } catch (\Exception $e) {
+            return redirect()->route('attendance.index')
+                ->with('error', 'Gagal menghapus data kehadiran: ' . $e->getMessage());
+        }
     }
 
     /**

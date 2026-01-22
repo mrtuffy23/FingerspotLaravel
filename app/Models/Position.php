@@ -9,7 +9,12 @@ class Position extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'allowance'];
+    protected $table = 'positions';
+    
+    protected $fillable = [
+        'name',
+        'code',
+    ];
 
     public function employees()
     {

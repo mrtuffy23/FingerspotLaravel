@@ -13,6 +13,8 @@ return new class extends Migration {
             $table->date('birth_date')->nullable();
             $table->enum('status',['aktif','nonaktif','kontrak','resign'])->default('aktif');
             $table->foreignId('position_id')->nullable()->constrained('positions')->nullOnDelete();
+            $table->foreignId('division_id')->nullable()->constrained('divisions')->nullOnDelete();
+            $table->foreignId('subdivision_id')->nullable()->constrained('subdivisions')->nullOnDelete();
             $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
             $table->year('join_year')->nullable();
             $table->decimal('umk',12,2)->default(0);

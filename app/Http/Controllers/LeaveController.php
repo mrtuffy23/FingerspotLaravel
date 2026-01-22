@@ -55,18 +55,30 @@ class LeaveController extends Controller
         $startDate = Carbon::parse($leave->start_date);
         $endDate = Carbon::parse($leave->end_date);
         
-        // Map leave type ke attendance status
+        // Map leave type ke attendance status (sesuai config/discipline.php)
         $statusMap = [
-            'izin' => 'permission',
-            'sakit' => 'sick',
-            'sakit_sabtu' => 'sick',
-            'kecelakaan' => 'accident',
-            'cuti' => 'on_leave',
-            'izin_keluar' => 'out_permission',
-            'libur' => 'on_leave',
+            'izin' => 'izin',
+            'sakit' => 'sakit',
+            'sakit_sabtu' => 'sakit',
+            'kecelakaan' => 'kecelakaan',
+            'cuti' => 'cuti',
+            'izin_keluar' => 'izin',
+            'libur' => 'cuti',
+        ];
+
+        // Map leave type ke point delta (sesuai config/discipline.php)
+        $pointDeltaMap = [
+            'izin' => -20,
+            'sakit' => -5,
+            'sakit_sabtu' => -5,
+            'kecelakaan' => -1,
+            'cuti' => 0,
+            'izin_keluar' => -5,
+            'libur' => 0,
         ];
         
-        $attendanceStatus = $statusMap[$leave->type] ?? 'on_leave';
+        $attendanceStatus = $statusMap[$leave->type] ?? 'cuti';
+        $pointDelta = $pointDeltaMap[$leave->type] ?? 0;
         
         // Update attendance untuk tiap hari dalam range cuti
         for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
@@ -86,9 +98,10 @@ class LeaveController extends Controller
                 ],
                 [
                     'status' => $attendanceStatus,
+                    'point_delta' => $pointDelta,
                     'work_hours' => 0,
                     'compensated_hours' => $leaveCompensation,
-                    'note' => "✅ Approved {$leave->type}: {$leave->reason}",
+                    'notes' => "✅ Approved {$leave->type}: {$leave->reason}",
                     'approved_by' => auth()->id(),
                     'approved_at' => now(),
                 ]
@@ -123,5 +136,40 @@ class LeaveController extends Controller
         }
 
         return redirect()->route('leave.index')->with('success', 'Cuti berhasil ditolak & Attendance sudah dihapus');
+    }
+
+    /**
+     * Delete a leave request
+     */
+    public function destroy($id)
+    {
+        $leave = Leave::findOrFail($id);
+
+        // If leave is approved, delete related attendance records and reverse points
+        if ($leave->approved_at) {
+            $startDate = Carbon::parse($leave->start_date);
+            $endDate = Carbon::parse($leave->end_date);
+            
+            for ($date = $startDate->copy(); $date <= $endDate; $date->addDay()) {
+                // Cari attendance yang dibuat untuk cuti ini
+                $attendance = Attendance::where('employee_id', $leave->employee_id)
+                                        ->where('date', $date->toDateString())
+                                        ->first();
+                
+                if ($attendance) {
+                    // Delete the attendance record (observer akan automatically reverse points)
+                    $attendance->delete();
+                }
+            }
+
+            $deleteMessage = ' & Attendance sudah dihapus (poin sudah di-reverse otomatis)';
+        } else {
+            $deleteMessage = '';
+        }
+
+        // Delete the leave record
+        $leave->delete();
+
+        return redirect()->route('leave.index')->with('success', 'Pengajuan cuti berhasil dihapus' . $deleteMessage);
     }
 }

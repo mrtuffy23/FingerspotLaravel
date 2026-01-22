@@ -6,68 +6,100 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Department;
 use App\Models\Classification;
+use App\Models\Division;
+use App\Models\SubDivision;
 use Illuminate\Http\Request;
 
 class KaryawanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::with(['position', 'department', 'classification'])->paginate(15);
-        return view('admin.karyawan.index', compact('employees'));
+        $search = $request->get('search');
+        $query = Employee::with(['position', 'department', 'division', 'subDivision']);
+        
+        if ($search) {
+            $query->where('name', 'LIKE', '%' . $search . '%')
+                  ->orWhere('nik', 'LIKE', '%' . $search . '%')
+                  ->orWhere('pin', 'LIKE', '%' . $search . '%');
+        }
+        
+        $employees = $query->paginate(15)->appends(request()->query());
+        return view('admin.karyawan.index', compact('employees', 'search'));
     }
 
     public function create()
     {
-        $positions = Position::all();
         $departments = Department::all();
+        $divisions = Division::all();
+        $positions = Position::all();
+        $subDivisions = SubDivision::all();
         $classifications = Classification::all();
-        return view('admin.karyawan.create', compact('positions', 'departments', 'classifications'));
+
+        return view('admin.karyawan.create', compact('departments', 'divisions', 'positions', 'subDivisions','classifications'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'pin' => 'required|unique:employees',
             'nik' => 'required|unique:employees',
-            'name' => 'required|string',
+            'employee_name' => 'required|string',
             'birth_place' => 'nullable|string',
             'birth_date' => 'nullable|date',
-            'status' => 'required|in:aktif,nonaktif,kontrak,resign',
-            'position_id' => 'required|exists:positions,id',
-            'department_id' => 'required|exists:departments,id',
-            'classification_id' => 'required|exists:classifications,id',
-            'join_year' => 'nullable|integer',
-            'umk' => 'nullable|numeric',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'employment_type' => 'required|in:monthly,daily',
+            'department_id' => 'required|exists:departments,id',
+            'division_id' => 'required|exists:divisions,id',
+            'subdivision_id' => 'nullable|exists:subdivisions,id',
+            'position_id' => 'required|exists:positions,id',
+            'classification_id' => 'required|exists:classifications,id',
+            'status' => 'required|in:aktif,kontrak,nonaktif,resign',
+            'join_year' => 'nullable|numeric|min:1990|max:' . date('Y'),
+            'umk' => 'nullable|numeric',
+            'photo' => 'nullable|image|mimes:jpeg,png,gif|max:2048',
         ]);
+
+        // Map employee_name to name column
+        if (isset($data['employee_name'])) {
+            $data['name'] = $data['employee_name'];
+            unset($data['employee_name']);
+        }
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
-            $photoFile = $request->file('photo');
-            $photoName = time() . '_' . uniqid() . '.' . $photoFile->getClientOriginalExtension();
-            $photoFile->move(public_path('uploads/employees'), $photoName);
-            $validated['photo'] = 'uploads/employees/' . $photoName;
+            $data['photo'] = $request->file('photo')->store('employees', 'public');
         }
 
-        Employee::create($validated);
+        Employee::create($data);
 
-        return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil ditambahkan');
+        return redirect()->route('karyawan.index')->with('success', 'Data karyawan berhasil disimpan.');
     }
 
     public function show($id)
     {
-        $employee = Employee::with(['position', 'department', 'classification', 'attendances', 'payrolls'])->findOrFail($id);
+        $employee = Employee::with([
+            'department',
+            'division',
+            'subdivision',
+            'position',
+            'classification',
+            'attendances',
+            'payrolls',
+            'leaves'
+        ])->findOrFail($id);
+
         return view('admin.karyawan.show', compact('employee'));
     }
 
     public function edit($id)
     {
         $employee = Employee::findOrFail($id);
-        $positions = Position::all();
         $departments = Department::all();
-        $classifications = Classification::all();
-        return view('admin.karyawan.edit', compact('employee', 'positions', 'departments', 'classifications'));
+        $divisions = Division::all();
+        $positions = Position::all();
+        $subDivisions = SubDivision::all();
+        $classifications = Classification::all(); // Add this line
+        
+        return view('admin.karyawan.edit', compact('employee', 'departments', 'divisions', 'positions', 'subDivisions', 'classifications'));
     }
 
     public function update(Request $request, $id)
@@ -80,26 +112,25 @@ class KaryawanController extends Controller
             'name' => 'required|string',
             'birth_place' => 'nullable|string',
             'birth_date' => 'nullable|date',
-            'status' => 'required|in:aktif,nonaktif,kontrak,resign',
-            'position_id' => 'required|exists:positions,id',
+            'employment_type' => 'required|in:monthly,daily',
             'department_id' => 'required|exists:departments,id',
+            'division_id' => 'required|exists:divisions,id',
+            'position_id' => 'required|exists:positions,id',
+            'subdivision_id' => 'nullable|exists:subdivisions,id',
             'classification_id' => 'required|exists:classifications,id',
+            'status' => 'required|in:aktif,kontrak,nonaktif,resign',
             'join_year' => 'nullable|integer',
             'umk' => 'nullable|numeric',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'employment_type' => 'required|in:monthly,daily',
         ]);
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
-            if ($employee->photo && file_exists(public_path($employee->photo))) {
-                unlink(public_path($employee->photo));
+            if ($employee->photo) {
+                \Storage::disk('public')->delete($employee->photo);
             }
-            $photoFile = $request->file('photo');
-            $photoName = time() . '_' . uniqid() . '.' . $photoFile->getClientOriginalExtension();
-            $photoFile->move(public_path('uploads/employees'), $photoName);
-            $validated['photo'] = 'uploads/employees/' . $photoName;
+            $validated['photo'] = $request->file('photo')->store('employees', 'public');
         }
 
         $employee->update($validated);
@@ -111,7 +142,6 @@ class KaryawanController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
-
         return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil dihapus');
     }
 }

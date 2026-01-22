@@ -50,6 +50,7 @@ class ProcessAttendanceBatch implements ShouldQueue {
                         $attendance->compensated_hours = $rule['compensated_hours'];
                         $attendance->point_delta = $rule['point'];
                         $attendance->save();
+                        
                         PointTransaction::create([
                             'employee_id' => $employee->id,
                             'date' => $date,
@@ -57,20 +58,59 @@ class ProcessAttendanceBatch implements ShouldQueue {
                             'reason' => "leave: {$type}",
                             'source_id' => $leave->id
                         ]);
+                        // Update employee's current points
+                        $employee->increment('current_points', $rule['point']);
                     }
                 } else {
-                    if (!$first) {
-                        $rule = config('discipline.rules')['alpha'];
-                        $attendance->status = 'absent';
-                        $attendance->point_delta = $rule['point'];
+                    // No leave approved - check if employee has any scan
+                    // If no scan at all ($first is null), mark as ALPHA/ABSENT
+                    if (is_null($first)) {
+                        $rule = config('discipline.rules')['alpha'] ?? [];
+                        $attendance->status = 'alpha';
+                        $attendance->point_delta = $rule['point'] ?? -5;
+                        $attendance->work_hours = 0;
                         $attendance->save();
-                        PointTransaction::create([
-                            'employee_id' => $employee->id,
-                            'date' => $date,
-                            'delta' => $rule['point'],
-                            'reason' => 'alpha',
-                            'source_id' => $attendance->id
-                        ]);
+                        
+                        // Record point transaction
+                        if ($rule) {
+                            PointTransaction::create([
+                                'employee_id' => $employee->id,
+                                'date' => $date,
+                                'delta' => $rule['point'],
+                                'reason' => 'attendance_alpha',
+                                'source_id' => $attendance->id
+                            ]);
+                            // Update employee's current points
+                            $employee->increment('current_points', $rule['point']);
+                        }
+                    } else {
+                        // Employee has scan - determine status based on work hours
+                        // This will be "present", "late", or "early_leave" depending on hours
+                        $rule = config('discipline.rules')['present'] ?? [];
+                        
+                        // If work hours is 0 after deducting break, mark as early leave
+                        if ($workHours <= 0) {
+                            $attendance->status = 'early_leave';
+                            $rule = config('discipline.rules')['early_leave'] ?? [];
+                        } else {
+                            $attendance->status = 'present';
+                        }
+                        
+                        $attendance->point_delta = $rule['point'] ?? 0;
+                        $attendance->save();
+                        
+                        // Record point transaction if there's a point delta
+                        if (isset($rule['point']) && $rule['point'] != 0) {
+                            PointTransaction::create([
+                                'employee_id' => $employee->id,
+                                'date' => $date,
+                                'delta' => $rule['point'],
+                                'reason' => 'attendance_' . $attendance->status,
+                                'source_id' => $attendance->id
+                            ]);
+                            // Update employee's current points
+                            $employee->increment('current_points', $rule['point']);
+                        }
                     }
                 }
             }

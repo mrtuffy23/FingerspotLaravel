@@ -16,9 +16,10 @@
             </div>
 
             <div class="d-flex gap-2">
-                <form class="d-none d-md-block">
-                    <input type="text" class="form-control rounded-pill"
+                <form method="GET" action="{{ route('karyawan.index') }}" class="d-none d-md-block">
+                    <input type="text" name="search" class="form-control rounded-pill"
                            placeholder="🔍 Cari nama / NIK..."
+                           value="{{ request('search') }}"
                            style="min-width: 220px">
                 </form>
 
@@ -43,7 +44,9 @@
                             <th>PIN</th>
                             <th>NIK</th>
                             <th>Departemen</th>
-                            <th>Posisi</th>
+                            <th>Divisi</th>
+                            <th>Sub Divisi</th>
+                            <th>Jabatan</th>
                             <th>Gol</th>
                             <th>Aksi</th>
                         </tr>
@@ -57,7 +60,7 @@
                             <td class="text-start">
                                 <div class="d-flex align-items-center gap-3">
                                     @if($employee->photo)
-                                        <img src="{{ asset($employee->photo) }}"
+                                        <img src="{{ asset('storage/' . $employee->photo) }}"
                                              alt="{{ $employee->name }}"
                                              class="rounded-circle"
                                              style="width:40px;height:40px;object-fit:cover;">
@@ -83,10 +86,22 @@
                                 </span>
                             </td>
 
+                            <td>
+                                <span class="badge bg-success text-white">
+                                    {{ $employee->division?->name ?? '-' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    {{ $employee->subdivision?->nama ?? '-' }}
+                                </span>
+                            </td>
+
                             <td>{{ $employee->position?->name ?? '-' }}</td>
 
                             <td>
-                                <span class="badge bg-info text-dark">
+                                <span class="badge bg-info text-white" style="font-size: 0.85rem;">
                                     {{ $employee->classification?->code ?? '-' }}
                                 </span>
                             </td>
@@ -124,7 +139,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <i class="bi bi-inbox display-6 text-muted d-block mb-2"></i>
                                 <p class="text-muted mb-0">Belum ada data karyawan</p>
                             </td>

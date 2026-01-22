@@ -63,25 +63,42 @@
                         </span>
                     </div>
 
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong><i class="bi bi-exclamation-circle"></i> Login Gagal!</strong>
+                            @foreach ($errors->all() as $error)
+                                <div>{{ $error }}</div>
+                            @endforeach
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <form action="{{ route('login.store') }}" method="POST">
                         @csrf
 
                         <div class="mb-3">
                             <label class="form-label small">Email</label>
                             <input type="email"
-                                   class="form-control"
+                                   class="form-control @error('email') is-invalid @enderror"
                                    name="email"
-                                   placeholder="admin@example.com"
+                                   value="{{ old('email') }}"
+                                   placeholder="admin@company.com"
                                    required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label small">Password</label>
                             <input type="password"
-                                   class="form-control"
+                                   class="form-control @error('password') is-invalid @enderror"
                                    name="password"
                                    placeholder="password"
                                    required>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-login w-100">
@@ -91,9 +108,17 @@
                     </form>
 
                     <div class="text-center text-muted small mt-4">
-                        <div>Demo Akun:</div>
-                        <div><strong>admin@example.com</strong></div>
-                        <div><strong>password</strong></div>
+                        <div class="mb-2">
+                            <strong class="d-block text-dark mb-1">Demo Akun:</strong>
+                            <div class="font-monospace">📧 admin@company.com</div>
+                            <div class="font-monospace">🔐 password123</div>
+                        </div>
+                        <hr class="my-3">
+                        <div>
+                            <strong class="d-block text-dark mb-1">Demo Akun 2:</strong>
+                            <div class="font-monospace">📧 demo@company.com</div>
+                            <div class="font-monospace">🔐 demo123</div>
+                        </div>
                     </div>
 
                     <div class="text-center mt-4">

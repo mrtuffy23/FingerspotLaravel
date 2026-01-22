@@ -271,6 +271,13 @@
                                                 onclick="showDetail({{ $leave->id }})">
                                             <i class="bi bi-eye"></i>
                                         </button>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-light text-danger"
+                                                data-bs-toggle="tooltip"
+                                                title="Hapus"
+                                                onclick="confirmDelete({{ $leave->id }})">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
                                     </div>
 
                                     <!-- Hidden Forms -->
@@ -287,6 +294,14 @@
                                           class="d-none">
                                         @csrf
                                     </form>
+
+                                    <form id="delete-form-{{ $leave->id }}" 
+                                          action="{{ route('leave.destroy', $leave) }}" 
+                                          method="POST" 
+                                          class="d-none">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
                                 @else
                                     <div class="btn-group" role="group">
                                         <button type="button" 
@@ -302,7 +317,22 @@
                                                 title="Download">
                                             <i class="bi bi-download"></i>
                                         </button>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-light text-danger"
+                                                data-bs-toggle="tooltip"
+                                                title="Hapus"
+                                                onclick="confirmDelete({{ $leave->id }})">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
                                     </div>
+
+                                    <form id="delete-form-{{ $leave->id }}" 
+                                          action="{{ route('leave.destroy', $leave) }}" 
+                                          method="POST" 
+                                          class="d-none">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
                                 @endif
                             </td>
                         </tr>
@@ -522,6 +552,13 @@ function confirmReject(id) {
     const reason = prompt('Masukkan alasan penolakan (opsional):');
     if (reason !== null) {
         document.getElementById('reject-form-' + id).submit();
+    }
+}
+
+// Confirm Delete
+function confirmDelete(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus pengajuan cuti ini? Data tidak dapat dikembalikan.')) {
+        document.getElementById('delete-form-' + id).submit();
     }
 }
 
